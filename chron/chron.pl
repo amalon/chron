@@ -254,6 +254,57 @@ event_during(death(Victim), lifetime(Murderer), Source) :-
 	murdered(Murderer, Victim, Source).
 
 /*
+ * C++: Global database lookup
+ */
+
+lookup_event(SimpleEvent, Event) :-
+	simplify_event(Event, SimpleEvent).
+
+get_time_domain(time(X, raw), Domain) :-
+	fd_dom(X, Domain).
+
+/*
+ * C++: Domain interface
+ */
+is_range(X) :-
+	integer(X).
+is_range(_.._).
+
+domain_to_ranges_p(X, [X], Count, Count) :-
+	is_range(X).
+domain_to_ranges_p(Rest\/Range, [Range|Ranges], Count, SoFar) :-
+	Increment is SoFar + 1,
+	domain_to_ranges_p(Rest, Ranges, Count, Increment).
+domain_to_ranges(Domain, Ranges, Count) :-
+	fd_dom(Domain, Dom),
+	domain_to_ranges_p(Dom, Ranges, Count, 1).
+
+range_to_minmax(X, X, X) :-
+	integer(X).
+range_to_minmax(X..Y, X, Y).
+
+/*
+ * C++: Time interface
+ */
+
+time_to_domain(Time, Domain) :-
+	simplify_time(Time, time(Domain, raw)).
+
+/*
+ * C++: Concrete database lookup
+ */
+
+lookup_db_event(Events, SimpleEvent, Event, Time) :-
+	member(event(Event, Time), Events),
+	simplify_event(Event, SimpleEvent).
+
+lookup_db_period(Events, Period, Begin, End) :-
+	period(Period),
+	member(event(begin(Period), Begin), Events),
+	member(event(end(Period), End), Events).
+
+
+/*
  * Printing of a database
  */
 
