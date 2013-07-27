@@ -361,7 +361,7 @@ print_db_time_domain(X..Y) :-
 	print_db_time_single(Y).
 print_db_time_domain(X\/Y) :-
 	print_db_time_domain(X),
-	print(' \/ '),
+	print(' \\/ '),
 	print_db_time_domain(Y).
 
 print_db_time_single(inf) :-
