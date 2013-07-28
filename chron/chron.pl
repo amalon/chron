@@ -103,6 +103,13 @@ event(end(Period)) :-
 events_ordered([begin(Period), end(Period)], period_order) :-
 	period(Period).
 
+% period_during(Inner, Outer, Source).
+period_during(_, _, _) :- fail.
+event_during(begin(Inner), Outer, Source) :-
+	period_during(Inner, Outer, Source).
+event_during(end(Inner), Outer, Source) :-
+	period_during(Inner, Outer, Source).
+
 /*
  * People
  */
