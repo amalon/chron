@@ -165,6 +165,7 @@ man(Son) :-
 parent_child(Parent, Son, Source) :-
 	parent_son(Parent, Son, Source).
 % parents_child([Father, Mother], Child, Source).
+parents_child(_, _, _) :- fail.
 parent_child(Parent, Child, Source) :-
 	parents_child([Parent, _], Child, Source).
 parent_child(Parent, Child, Source) :-
