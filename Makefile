@@ -1,5 +1,5 @@
 #
-# chron/Makefile
+# Makefile
 #
 # Copyright (C) 2013 James Hogan <james@albanarts.com>
 #
@@ -14,10 +14,13 @@
 # (in the file called COPYING).
 #
 #
-# Makefile for chron command line test program.
+# Main top-level Makefile.
 #
 
-pkg-y	+= swipl
+include scripts/Makefile.common
 
-test-y	+= test.o
-prog-y	+= test
+cflags-y	+= -Wall -g -O0
+
+targ-y		+= chron/
+
+include scripts/Makefile.build

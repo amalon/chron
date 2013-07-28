@@ -1,0 +1,179 @@
+#
+# scripts/Makefile.build
+#
+# Copyright (C) 2013 James Hogan <james@albanarts.com>
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details
+# (in the file called COPYING).
+#
+#
+# Main Makefile used for each directory (recursively).
+#
+
+ifneq ($(obj),)
+    include scripts/Makefile.common
+
+    inc-y	:=
+    obj-y	:=
+    lib-y	:=
+    libs-y	:=
+    pkg-y	:=
+    cflags-y	:=
+    prog-y	:=
+    targ-y	:=
+    clean-y	:=
+
+    include $(obj)Makefile
+
+    libs_ndir-y	:= $(strip $(filter-out %/,$(libs-y)))
+    ifneq ($(libs_ndir-y),)
+        $(error "$(obj)Makefile: libs-y contains non directories $(libs_ndir-y)")
+    endif
+endif
+
+makeflags-y	:= -f scripts/Makefile.build
+
+# joining dir with file, flattening %/../
+
+relpath2 = $(if $(filter ../%,$(2)),$(call relpath2,$(dir $(patsubst %/,%,$(1))),$(patsubst ../%,%,$(2))),$(1)$(2))
+relpath = $(foreach path,$(1),$(call relpath2,$(obj),$(path)))
+
+# clean files prior to prefixing
+clean-y		+= built-in.cpp
+clean-y		+= built-in.o
+clean-y		+= lib.a
+clean-y		+= $(obj-y)
+clean-y		+= $(lib-y)
+clean-y		+= $(libs-y)
+clean-y		+= $(targ-y)
+
+# prefix path
+obj-y		:= $(call relpath,$(obj-y))
+lib-y		:= $(call relpath,$(lib-y))
+libs-y		:= $(call relpath,$(libs-y))
+inc-y		:= $(call relpath,$(inc-y))
+prog-y		:= $(call relpath,$(prog-y))
+targ-y		:= $(call relpath,$(targ-y))
+clean-y		:= $(call relpath,$(clean-y))
+
+# apply inc-y into cflags-y
+cflags-y	+= $(patsubst %,-I%,$(inc-y))
+
+# use pkg-config to find package information
+ifneq ($(strip $(pkg-y)),)
+cflags-y	+= $(shell pkg-config --cflags --libs $(pkg-y))
+endif
+
+# apply CFLAGS and CXXFLAGS
+cxxflags-y	:= $(strip $(CXXFLAGS) $(cflags-y))
+cflags-y	:= $(strip $(CFLAGS) $(cflags-y))
+
+makeflags-y	+= CFLAGS='$(cflags-y)'
+makeflags-y	+= CXXFLAGS='$(cxxflags-y)'
+
+# split obj-y into obj-y and subdir-y
+subdir-y	:= $(filter %/,$(obj-y))
+dep-y		:= $(patsubst %.o,%.d,$(filter-out %/,$(obj-y)))
+obj-y		:= $(patsubst %/,%/built-in.o,$(obj-y))
+
+# get library object dependency files
+dep-y		+= $(patsubst %.o,%.d,$(lib-y))
+
+# add lib.a to libs-y
+libs-y		:= $(patsubst %/,%/lib.a,$(libs-y))
+
+
+.PHONY: all
+all: targets
+
+.PHONY: targets
+targets: $(targ-y)
+
+.PHONY: FORCE
+FORCE:
+
+# subdirs needed for built-in.o
+$(subdir-y:=built-in.o): FORCE
+	$(MAKE) $(makeflags-y) obj=$(patsubst %built-in.o,%,$@) $@
+
+# subdirs needed for lib.a
+$(libs-y): FORCE
+	$(MAKE) $(makeflags-y) obj=$(patsubst %lib.a,%,$@) $@
+
+# subdirs needed for other targets
+$(targ-y): FORCE
+	$(MAKE) $(makeflags-y) obj=$@ targets
+
+ifeq ($(obj-y),)
+$(obj)built-in.cpp:
+	touch $@
+else
+$(obj)built-in.o: $(obj-y)
+	$(LD) -r -o $@ $(obj-y)
+endif
+
+ifneq ($(lib-y),)
+$(obj)lib.a: $(lib-y)
+	rm -f $@; $(AR) rcs $@ $^
+endif
+
+ifneq ($(filter $(prog),$(prog-y)),)
+# a specific program target
+all: $(prog)
+prog_obj-y	:= $(call relpath,$($(patsubst $(obj)%,%,$(prog))-y))
+prog_dep-y	:= $(patsubst %.o,%.d,$(filter-out %/,$(prog_obj-y)))
+# overwrite clean list
+clean-y		:= $(prog) $(prog_obj-y) $(prog_dep-y)
+# split obj-y into obj-y and subdir-y
+prog_subdir-y	:= $(filter %/,$(prog_obj-y))
+prog_obj-y	:= $(patsubst %/,%/built-in.o,$(prog_obj-y))
+$(prog): $(prog_obj-y) $(libs-y)
+	$(CXX) $(cxxflags-y) $^ -o $@
+# subdirs needed for built-in.o
+$(prog_subdir-y:=built-in.o): FORCE
+	$(MAKE) $(makeflags-y) obj=$(patsubst %built-in.o,%,$(patsubst ./%,%,$@)) $(patsubst ./%,%,$@)
+-include $(prog_dep-y)
+else
+# no specific program, recurse to build one
+# FIXME dont want to repeat cflags
+targets: $(prog-y)
+$(prog-y): FORCE
+	$(MAKE) $(makeflags-y) obj=$(obj) prog=$@ $@
+
+clean_prog-y	:= $(patsubst %,cleanprog_%,$(prog-y))
+.PHONY: $(clean_prog-y)
+clean: $(clean_prog-y)
+$(clean_prog-y): FORCE
+	$(MAKE) $(makeflags-y) obj=$(obj) prog=$(patsubst cleanprog_%,%,$@) clean
+endif
+
+%.o: %.cpp
+	@$(CXX) $(cxxflags-y) -MM -MT $@ -c $< -o $(patsubst %.o,%.d,$@)
+	$(CXX) $(cxxflags-y) -c -o $@ $<
+
+%.h:
+	@echo $@ removed
+
+clean-y		+= $(dep-y)
+-include $(dep-y)
+
+# separate clean directories
+clean_targ-y	:= $(patsubst %,clean_%,$(filter %/,$(clean-y)))
+clean-y		:= $(filter-out %/,$(clean-y))
+
+.PHONY: clean
+clean: $(clean_targ-y)
+ifneq ($(clean-y),)
+	rm -f $(clean-y)
+endif
+.PHONY: $(clean_targ-y)
+$(clean_targ-y): FORCE
+	$(MAKE) $(makeflags-y) obj=$(patsubst clean_%,%,$@) clean
+

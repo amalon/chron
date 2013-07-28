@@ -1,5 +1,5 @@
 #
-# chron/Makefile
+# scripts/Makefile.common
 #
 # Copyright (C) 2013 James Hogan <james@albanarts.com>
 #
@@ -14,10 +14,14 @@
 # (in the file called COPYING).
 #
 #
-# Makefile for chron command line test program.
+# General makefile definitions used by scripts/Makefile.build and individual
+# directory Makefiles.
 #
+#
+OBJCOPY=objcopy
 
-pkg-y	+= swipl
+# omit "Entering directory" messages
+MAKE:=$(MAKE) --no-print-directory
 
-test-y	+= test.o
-prog-y	+= test
+# omit recursive make messages
+MAKE:=@$(MAKE)
