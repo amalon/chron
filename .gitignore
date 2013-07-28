@@ -1,0 +1,5 @@
+.*.swp
+*.o
+*.d
+built-in.cpp
+lib.a
