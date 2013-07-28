@@ -183,6 +183,21 @@ parents_child([A, B], Child, Source) :-
 woman(Child) :-
 	parents_daughter([_, _], Child, _).
 
+% Marriage
+married(_, _, _) :- fail.
+
+% marriage is a period
+period(marriage(Man, Woman)) :-
+	married(Man, Woman, _),
+	man(Man),
+	woman(Woman).
+
+% marriage during both people's lifetimes
+period_during(marriage(Man, Woman), lifetime(Man), Source) :-
+	married(Man, Woman, Source).
+period_during(marriage(Man, Woman), lifetime(Woman), Source) :-
+	married(Man, Woman, Source).
+
 % Generalised interval methods
 % event_interval(Event1, Event2, Param, Source)
 event_interval(_, _, _, _) :- fail.
