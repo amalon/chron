@@ -156,8 +156,10 @@ $(clean_prog-y): FORCE
 	$(MAKE) $(makeflags-y) obj=$(obj) prog=$(patsubst cleanprog_%,%,$@) clean
 endif
 
+%.d: %.cpp
+	$(CXX) $(cxxflags-y) -MM -MT $(patsubst %.d,%.o,$@) -c $< -o $@
+
 %.o: %.cpp
-	@$(CXX) $(cxxflags-y) -MM -MT $@ -c $< -o $(patsubst %.o,%.d,$@)
 	$(CXX) $(cxxflags-y) -c -o $@ $<
 
 %.h:
