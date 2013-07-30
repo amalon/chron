@@ -139,7 +139,9 @@ $(prog): $(prog_obj-y) $(libs-y)
 # subdirs needed for built-in.o
 $(prog_subdir-y:=built-in.o): FORCE
 	$(MAKE) $(makeflags-y) obj=$(patsubst %built-in.o,%,$(patsubst ./%,%,$@)) $(patsubst ./%,%,$@)
--include $(prog_dep-y)
+ifneq ($(MAKECMDGOALS),clean)
+    -include $(prog_dep-y)
+endif
 else
 # no specific program, recurse to build one
 # FIXME dont want to repeat cflags
@@ -162,7 +164,10 @@ endif
 	@echo $@ removed
 
 clean-y		+= $(dep-y)
--include $(dep-y)
+ifneq ($(MAKECMDGOALS),clean)
+    -include $(dep-y)
+endif
+
 
 # separate clean directories
 clean_targ-y	:= $(patsubst %,clean_%,$(filter %/,$(clean-y)))
