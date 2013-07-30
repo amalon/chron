@@ -1,5 +1,5 @@
 /*
- * chron
+ * src/chron.pl
  *
  * Copyright (C) 2012 James Hogan <james@albanarts.com>
  *

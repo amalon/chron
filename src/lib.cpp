@@ -1,7 +1,7 @@
 /*
- * test
+ * src/lib.cpp
  *
- * Copyright (C) 2012 James Hogan <james@albanarts.com>
+ * Copyright (C) 2013 James Hogan <james@albanarts.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,15 +14,8 @@
  * (in the file called COPYING).
  *
  *
- * Test program.
+ * Common chron library functions.
  *
  */
 
-% Preliminary setup
-:- include(prechron).
-
-% include your data file here
-%:- include('../../bible/bible').
-
-% All the chron clauses
-:- include(chron).
+/* Nothing yet */

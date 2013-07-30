@@ -1,5 +1,5 @@
 /*
- * prechron
+ * src/wrapper.pl
  *
  * Copyright (C) 2012 James Hogan <james@albanarts.com>
  *
@@ -14,12 +14,15 @@
  * (in the file called COPYING).
  *
  *
- * Definitions which need to come before the main data.
+ * Test program.
  *
  */
 
-% constraint library
-:- use_module(library(clpfd)).
+% Preliminary setup
+:- include(prechron).
 
-% We have lots of discontiguous clauses so silence all the warnings
-:- style_check(-discontiguous).
+% include your data file here
+%:- include('../../bible/bible').
+
+% All the chron clauses
+:- include(chron).

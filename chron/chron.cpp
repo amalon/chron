@@ -1,5 +1,5 @@
 /*
- * chron/test.cpp
+ * chron/chron.cpp
  *
  * Copyright (C) 2012 James Hogan <james@albanarts.com>
  *
@@ -14,7 +14,7 @@
  * (in the file called COPYING).
  *
  *
- * Test of C++/swipl chron bindings.
+ * Command line test program of chron library.
  *
  */
 
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 		(char *)"-q",	// silence SWI-prolog copyright information
 
 		(char *)"-s",
-		(char *)"test.pl",
+		(char *)"../src/wrapper.pl",
 	};
 	PlEngine pl(ARRAY_SIZE(args), args);
 

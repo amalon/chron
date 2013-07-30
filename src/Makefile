@@ -1,5 +1,5 @@
 #
-# chron/Makefile
+# src/Makefile
 #
 # Copyright (C) 2013 James Hogan <james@albanarts.com>
 #
@@ -14,12 +14,7 @@
 # (in the file called COPYING).
 #
 #
-# Makefile for chron command line test program.
+# Makefile for chron library functions.
 #
 
-pkg-y	+= swipl
-
-libs-y	+= ../src/
-
-chron-y	+= chron.o
-prog-y	+= chron
+lib-y	+= lib.o
