@@ -19,6 +19,7 @@
 #
 #
 OBJCOPY=objcopy
+MOC=moc
 
 # omit "Entering directory" messages
 MAKE:=$(MAKE) --no-print-directory

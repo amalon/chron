@@ -22,6 +22,7 @@ ifneq ($(obj),)
 
     inc-y	:=
     obj-y	:=
+    moc-y	:=
     lib-y	:=
     libs-y	:=
     pkg-y	:=
@@ -40,6 +41,10 @@ endif
 
 makeflags-y	:= -f scripts/Makefile.build
 
+# turn moc headers into object file names
+moc_cpp-y	+= $(patsubst %.h,moc_%.cpp,$(moc-y))
+obj-y		+= $(patsubst %.cpp,%.o,$(moc_cpp-y))
+
 # joining dir with file, flattening %/../
 
 relpath2 = $(if $(filter ../%,$(2)),$(call relpath2,$(dir $(patsubst %/,%,$(1))),$(patsubst ../%,%,$(2))),$(1)$(2))
@@ -50,6 +55,7 @@ clean-y		+= built-in.cpp
 clean-y		+= built-in.o
 clean-y		+= lib.a
 clean-y		+= $(obj-y)
+clean-y		+= $(moc_cpp-y)
 clean-y		+= $(lib-y)
 clean-y		+= $(libs-y)
 clean-y		+= $(targ-y)
@@ -127,7 +133,10 @@ endif
 ifneq ($(filter $(prog),$(prog-y)),)
 # a specific program target
 all: $(prog)
-prog_obj-y	:= $(call relpath,$($(patsubst $(obj)%,%,$(prog))-y))
+progname	:= $(patsubst $(obj)%,%,$(prog))
+prog_obj-y	:= $($(progname)-y)
+prog_obj-y	+= $(patsubst %.h,moc_%.o,$($(progname)_moc-y))
+prog_obj-y	:= $(call relpath,$(prog_obj-y))
 prog_dep-y	:= $(patsubst %.o,%.d,$(filter-out %/,$(prog_obj-y)))
 # overwrite clean list
 clean-y		:= $(prog) $(prog_obj-y) $(prog_dep-y)
@@ -155,6 +164,9 @@ clean: $(clean_prog-y)
 $(clean_prog-y): FORCE
 	$(MAKE) $(makeflags-y) obj=$(obj) prog=$(patsubst cleanprog_%,%,$@) clean
 endif
+
+moc_%.cpp: %.h
+	$(MOC) -o $@ $<
 
 %.d: %.cpp
 	$(CXX) $(cxxflags-y) -MM -MT $(patsubst %.d,%.o,$@) -c $< -o $@
