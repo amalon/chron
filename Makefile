@@ -19,6 +19,8 @@
 
 include scripts/Makefile.common
 
+inc-y		+= include/
+
 cflags-y	+= -Wall -g -O0
 
 targ-y		+= chron/

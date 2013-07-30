@@ -22,7 +22,7 @@
 #include <iostream>
 #include <cassert>
 
-#include "chron.h"
+#include <chron/chron.h>
 
 #define ARRAY_SIZE(X) (sizeof(X) / sizeof(X[0]))
 
