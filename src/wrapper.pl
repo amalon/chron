@@ -1,7 +1,7 @@
 /*
  * src/wrapper.pl
  *
- * Copyright (C) 2012 James Hogan <james@albanarts.com>
+ * Copyright (C) 2012-2013 James Hogan <james@albanarts.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -26,3 +26,5 @@
 
 % All the chron clauses
 :- include(chron).
+:- include(dot).
+:- include(dot_ancestry).
