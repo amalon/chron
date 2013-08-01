@@ -1,7 +1,7 @@
 /*
  * src/chron.pl
  *
- * Copyright (C) 2012 James Hogan <james@albanarts.com>
+ * Copyright (C) 2012-2013 James Hogan <james@albanarts.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -81,6 +81,13 @@ simplify_time(time(Derived, X), Raw) :-
 	Base #= Derived * Multiple,
 	simplify_time(time(Base, Y), Raw).
 
+% Pretty printing
+
+% describe a source
+source_description(Source, Desc) :-
+	describe_source(Source, Desc), !.
+source_description(Source, Source).
+
 /*
  * Events
  */
@@ -118,6 +125,12 @@ unborn(_) :- fail.
 man(_) :- fail.
 woman(_) :- fail.
 twins(_, _, _) :- fail.
+
+% Person names
+person_name(_, _) :- fail.
+person_description(Person, Desc) :-
+	person_name(Person, Desc), !.
+person_description(Person, Person).
 
 % Any person who isn't unborn was once born
 born_person(Person) :-
