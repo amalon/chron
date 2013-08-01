@@ -469,10 +469,14 @@ expand_event(Simple, Raw) :-
 % matches only derived and underivable versions
 simplify_event(Raw, Simple) :-
 	event_simplifier(Raw, Middle),
-	simplify_event(Middle, Simple).
+	simplify_event(Middle, Simple),
+	!.
+simplify_event(Raw, Simple) :-
+	event_simplifier(Middle, Simple),
+	simplify_event(Raw, Middle),
+	!.
 simplify_event(Raw, Raw) :-
-	event(Raw),
-	\+event_simplifier(Raw, _).
+	event(Raw).
 
 /*
  * Satisfying a database
