@@ -28,3 +28,4 @@
 :- include(chron).
 :- include(dot).
 :- include(dot_ancestry).
+:- include(dot_chron).
