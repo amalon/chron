@@ -182,6 +182,17 @@ parent_sons(_, _, _) :- fail.
 parent_son(Parent, Son, Source) :-
 	parent_sons(Parent, Sons, Source),
 	member(Son, Sons).
+% parent_descendent(Parent, Descendent, Source).
+parent_descendent(_, _, _) :- fail.
+person(Descendent) :-
+	parent_descendent(_, Descendent, _).
+events_ordered([birth(Parent), conception(Descendent)], Source) :-
+	parent_descendent(Parent, Descendent, Source).
+% parent_descendents(Parent, Descendents, Source).
+parent_descendents(_, _, _) :- fail.
+parent_descendent(Parent, Descendent, Source) :-
+	parent_descendents(Parent, Descendents, Source),
+	member(Descendent, Descendents).
 % parents_child([Father, Mother], Child, Source).
 parents_child(_, _, _) :- fail.
 parent_child(Parent, Child, Source) :-
