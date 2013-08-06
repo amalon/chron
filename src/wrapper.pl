@@ -25,6 +25,7 @@
 %:- include('../../bible/bible').
 
 % All the chron clauses
+:- include(calendar).
 :- include(chron).
 :- include(dot).
 :- include(dot_ancestry).
