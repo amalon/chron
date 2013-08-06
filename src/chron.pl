@@ -177,6 +177,11 @@ man(Son) :-
 	parent_son(_, Son, _).
 parent_child(Parent, Son, Source) :-
 	parent_son(Parent, Son, Source).
+% parent_sons(Parent, Sons, Source).
+parent_sons(_, _, _) :- fail.
+parent_son(Parent, Son, Source) :-
+	parent_sons(Parent, Sons, Source),
+	member(Son, Sons).
 % parents_child([Father, Mother], Child, Source).
 parents_child(_, _, _) :- fail.
 parent_child(Parent, Child, Source) :-
