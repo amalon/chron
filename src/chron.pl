@@ -132,6 +132,16 @@ person_description(Person, Desc) :-
 	person_name(Person, Desc), !.
 person_description(Person, Person).
 
+% Convenience people groups
+% people_gruop(Label, People).
+people_group(_, _) :- fail.
+people_in_group(group(Group), People) :-
+	people_group(Group, People).
+people_in_group([P|Ps], [P|Ps]).
+person_in_group(Person, Group) :-
+	people_in_group(Group, People),
+	member(Person, People).
+
 % Any person who isn't unborn was once born
 born_person(Person) :-
 	person(Person),
@@ -722,7 +732,8 @@ internal_constraint(events_coincide, [end(A), begin(B)], Source,
 % constraint(population_bottleneck, [Bottleneck, Survivors], Source).
 population_bottleneck(_, _, _) :- fail.
 constraint(population_bottleneck, [Bottleneck, Survivors], Source) :-
-	population_bottleneck(Bottleneck, Survivors, Source).
+	population_bottleneck(Bottleneck, Group, Source),
+	people_in_group(Group, Survivors).
 apply_population_bottleneck(Birth, Death, Bottleneck) :-
 	% Anybody born before bottleneck didn't live beyond bottleneck
 	(Birth #< Bottleneck) #==> (Death #=< Bottleneck).
