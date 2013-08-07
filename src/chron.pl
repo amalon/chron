@@ -473,7 +473,7 @@ print_db_time_domain_noz(X) :-
  * Event simplification and expansion
  */
 
-% recursively expand using event_simplifier, finishing when we hit an event 
+% recursively expand using event_simplifier, finishing when we hit an event
 % matches both derived and underived versions
 expand_event(Simple, Simple) :-
 	event(Simple).
