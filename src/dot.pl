@@ -72,6 +72,15 @@ write_dot_attrs_raw(S, [Attr|Tail]) :-
 	write(S, ' '),
 	write_dot_attrs_raw(S, Tail).
 
+% Write a set of graph attributes
+write_dot_attrs_graph(_, []).
+write_dot_attrs_graph(S, [Attr|Tail]) :-
+	write(S, '\t'),
+	write_dot_attr(S, Attr),
+	write(S, ';'),
+	nl(S),
+	write_dot_attrs_raw(S, Tail).
+
 % Write a single attribute
 write_dot_attr(S, attr(Attr, Val)) :-
 	write(S, Attr), write(S, '='), write_dot_val(S, Val).
