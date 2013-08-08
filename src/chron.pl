@@ -685,8 +685,11 @@ internal_constraint(raw(generic), [apply_event_relation,
 
 /* constraint(period_len, [Period, Time], Source). */
 period_len(_, _, _) :- fail.
+simplified_period_len(Period, Time, Source) :-
+	period_len(Period, DerivedTime, Source),
+	simplify_interval(DerivedTime, Time).
 constraint(period_len, [Period, Time], Source) :-
-	period_len(Period, Time, Source).
+	simplified_period_len(Period, Time, Source).
 internal_constraint(event_separation, [begin(Period), end(Period), Time], Source,
 		    constraint(period_len, Data, Higher)) :-
 	Data = [Period, Time],
@@ -695,8 +698,11 @@ internal_constraint(event_separation, [begin(Period), end(Period), Time], Source
 
 /* constraint(periods_len, [Periods, Time], Source). */
 periods_len(_, _, _) :- fail.
+simplified_periods_len(Periods, Time, Source) :-
+	periods_len(Periods, DerivedTime, Source),
+	simplify_interval(DerivedTime, Time).
 constraint(periods_len, [Periods, Time], Source) :-
-	periods_len(Periods, Time, Source).
+	simplified_periods_len(Periods, Time, Source).
 internal_constraint(period_len, [Period, T], Source,
 		    constraint(periods_len, Data, Higher)) :-
 	Data = [PeriodList, T],
