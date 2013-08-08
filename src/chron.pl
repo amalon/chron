@@ -195,7 +195,10 @@ parent_son(Parent, Son, Source) :-
 % parent_descendent(Parent, Descendent, Source).
 parent_descendent(_, _, _) :- fail.
 person(Descendent) :-
-	parent_descendent(_, Descendent, _).
+	parent_descendent(_, Descendent, _),
+	% don't duplicate personage
+	\+man(Descendent),
+	\+woman(Descendent).
 events_ordered([birth(Parent), conception(Descendent)], Source) :-
 	parent_descendent(Parent, Descendent, Source).
 % parent_descendents(Parent, Descendents, Source).
