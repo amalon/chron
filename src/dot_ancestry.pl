@@ -68,9 +68,11 @@ write_dot_relationships(S, _) :-
 	nl(S),
 	write_dot_comment(S, 'Marriages'),
 	married(Man, Woman, _),
+	write_dot_head(S, subgraph, ''),
+	write_dot_attrs_graph(S, [attr(rank, same)]),
 	write_dot_edges(S, [Man, d(Woman)],
 			[attr(dir,none),
-			 attr(constraint,false),
 			 attr(color,red)]),
+	write_dot_tail(S),
 	fail.
 write_dot_relationships(_, _).
