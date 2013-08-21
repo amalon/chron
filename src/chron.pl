@@ -187,6 +187,12 @@ man(Son) :-
 	parent_son(_, Son, _).
 parent_child(Parent, Son, Source) :-
 	parent_son(Parent, Son, Source).
+% parent_daughter(Parent, Daughter, Source).
+parent_daughter(_, _, _) :- fail.
+woman(Daughter) :-
+	parent_daughter(_, Daughter, _).
+parent_child(Parent, Daughter, Source) :-
+	parent_daughter(Parent, Daughter, Source).
 % parent_sons(Parent, Sons, Source).
 parent_sons(_, _, _) :- fail.
 parent_son(Parent, Son, Source) :-
