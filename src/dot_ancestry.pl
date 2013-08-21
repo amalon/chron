@@ -58,7 +58,7 @@ write_dot_relationships(S, _) :-
 write_dot_relationships(S, _) :-
 	nl(S),
 	write_dot_comment(S, 'Ancestry'),
-	parent_descendent(Parent, Child, Src),
+	raw_parent_descendent(Parent, Child, Src),
 	source_description(Src, Desc),
 	write_dot_edges(S, [Parent, d(Child)],
 			[attr(label, string(Desc)), attr(style, dashed)]),

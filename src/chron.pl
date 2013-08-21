@@ -205,8 +205,11 @@ person(Descendent) :-
 	% don't duplicate personage
 	\+man(Descendent),
 	\+woman(Descendent).
-events_ordered([birth(Parent), conception(Descendent)], Source) :-
+% use when descendent already a person (to avoid recursion)
+raw_parent_descendent(Parent, Descendent, Source) :-
 	parent_descendent(Parent, Descendent, Source).
+events_ordered([birth(Parent), conception(Descendent)], Source) :-
+	raw_parent_descendent(Parent, Descendent, Source).
 % parent_descendents(Parent, Descendents, Source).
 parent_descendents(_, _, _) :- fail.
 parent_descendent(Parent, Descendent, Source) :-
