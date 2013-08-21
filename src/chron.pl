@@ -180,6 +180,15 @@ event_during(birth(Child), lifetime(Mother), Source) :-
 % both parents need to be present at conception
 event_during(conception(Child), lifetime(Parent), Source) :-
 	parent_child(Parent, Child, Source).
+% parent's must be sexually mature to have children
+mature(_, _, _) :- fail.
+event(maturity(Person)) :-
+	mature(Person, _, _).
+event_interval(birth(Parent), maturity(Parent), Interval, Source) :-
+	mature(Parent, Interval, Source).
+events_ordered([maturity(Parent), conception(Child)], Source) :-
+	mature(Parent, _, _),
+	parent_child(Parent, Child, Source).
 
 % parent_son(Parent, Son, Source).
 parent_son(_, _, _) :- fail.
