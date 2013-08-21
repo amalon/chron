@@ -31,3 +31,9 @@
 :- include(dot_ancestry).
 :- include(dot_chron).
 :- include(dwelling).
+
+% Gnuclad output
+:- include(csv).
+:- include(gnuclad).
+:- include(timeline).
+:- include(gnuclad_timeline).
