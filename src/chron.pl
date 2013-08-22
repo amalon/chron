@@ -26,6 +26,8 @@
 
 % Uncomment to enable printing of constraints as the're applied
 %debug_printing.
+% Uncomment to make errors fatal
+errors_fatal.
 
 debug_printing :- fail.
 dbg_print(X) :-
@@ -38,6 +40,13 @@ dbg_nl :-
 	nl,
 	!.
 dbg_nl.
+
+errors_fatal :- fail.
+error :-
+	errors_fatal,
+	!,
+	fail.
+error.
 
 /*
  * General utilities
@@ -575,15 +584,26 @@ apply_constraints(Events) :-
 apply_constraints_inner(_, []).
 apply_constraints_inner(Events, [Constraint|Tail]) :-
 	dbg_print('Applying '), dbg_print(Constraint), dbg_print(' ... '),
-	apply_constraint(Events, Constraint),
+	apply_constraint(Events, Constraint), !,
 	dbg_print('done'), dbg_nl,
+	apply_constraints_inner(Events, Tail).
+apply_constraints_inner(Events, [Constraint|Tail]) :-
+	dbg_nl,
+	print('ERROR: failed to apply constraint: '),
+	print(Constraint), nl,
+	error,
 	apply_constraints_inner(Events, Tail).
 
 % Pre-process arguments
 apply_preargs(_, [], []).
 % Convert events to times
 apply_preargs(Events, [event_time(Event)|Tail], [Time|RTail]) :-
-	get_event_time(Events, Event, time(Time, raw)),
+	( get_event_time(Events, Event, time(Time, raw)),
+	  !
+	; dbg_nl,
+	  print('ERROR: invalid event: '), print(Event), nl,
+	  fail
+	),
 	apply_preargs(Events, Tail, RTail).
 % Direct pass through arguments.
 apply_preargs(Events, [pass(Data)|Tail], [Data|RTail]) :-
