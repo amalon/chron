@@ -361,7 +361,7 @@ event_during(death(Victim), lifetime(Murderer), Source) :-
  */
 
 lookup_event(SimpleEvent, Event) :-
-	simplify_event(Event, SimpleEvent).
+	event_expansion(Event, SimpleEvent).
 
 get_time_domain(time(X, raw), Domain) :-
 	fd_dom(X, Domain).
@@ -520,24 +520,28 @@ print_db_time_domain_noz(X) :-
 
 % recursively expand using event_simplifier, finishing when we hit an event
 % matches both derived and underived versions
-expand_event(Simple, Simple) :-
-	event(Simple).
-expand_event(Simple, Raw) :-
-	event_simplifier(Middle, Simple),
-	expand_event(Middle, Raw).
+expand_event(Event, Expanded) :-
+	(	event(Event) -> Expanded = Event
+	;	event_simplifier(Expand, Event),
+		expand_event(Expand, Expanded)
+	).
 
 % simplify an event so it's as human friendly as possible
 % matches only derived and underivable versions
-simplify_event(Raw, Simple) :-
-	event_simplifier(Raw, Middle),
-	simplify_event(Middle, Simple),
-	!.
-simplify_event(Raw, Simple) :-
-	event_simplifier(Middle, Simple),
-	simplify_event(Raw, Middle),
-	!.
-simplify_event(Raw, Raw) :-
-	event(Raw).
+simplify_event(Event, Simple) :-
+	(	event_simplifier(Event, Simpler) -> simplify_event(Simpler, Simple)
+	;	Simple = Event
+	).
+
+% event expansion - works both ways
+event_expansion(Expanded, Simple) :-
+	(	\+ var(Simple)
+	->	expand_event(Simple, Expanded)
+	;	\+ var(Expanded)
+	->	simplify_event(Expanded, Simple)
+	;	event(Expanded),
+		simplify_event(Expanded, Simple)
+	).
 
 /*
  * Satisfying a database

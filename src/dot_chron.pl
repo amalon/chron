@@ -52,7 +52,7 @@ write_dot_event(S, E, Name) :-
 	write_dot_node(S, Name, [attr(label, string(Simple))]).
 
 lookup_dot_event_name(Event, Map, d(Name)) :-
-	simplify_event(RawEvent, Event),
+	expand_event(Event, RawEvent),
 	member([RawEvent|Name], Map), !.
 /*
 lookup_dot_event_name(Event, Map, _) :-
@@ -65,7 +65,7 @@ lookup_dot_event_name(Event, Map, _) :-
 % makes them directional
 lookup_dot_event_names([], _, []).
 lookup_dot_event_names([Event|Events], Map, [Name|Names]) :-
-	simplify_event(RawEvent, Event),
+	expand_event(Event, RawEvent),
 	lookup_dot_event_name(RawEvent, Map, Name),
 	lookup_dot_event_names(Events, Map, Names).
 
