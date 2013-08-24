@@ -560,12 +560,10 @@ process_db(SimpleEpoch, Events) :-
 
 % Events maps all events to raw times
 event_to_time_map(Event, event(Event, time(_, raw))).
-events_time_mapping(EventTimes) :-
+events_time_mapping(Events) :-
 	% be careful that events only have a single time
-	% produce a set list of just events
-	setof(Event, event(Event), Events),
-	% and then make it into a time map
-	maplist(event_to_time_map, Events, EventTimes).
+	% produce a set list of event times
+	setof(event(Event, time(_, raw)), event(Event), Events).
 
 % Lookup the time of an event in an event-time mapping
 %get_event_time([event(Event, Time), ...], Event, Time).
