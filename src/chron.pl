@@ -594,19 +594,18 @@ apply_constraint_wrapper(Events, Constraint) :-
 	).
 
 % Pre-process arguments
-apply_preargs(_, [], []).
+apply_preargs(Events, Args, ProcessedArgs) :-
+	maplist(apply_prearg(Events), Args, ProcessedArgs).
+
 % Convert events to times
-apply_preargs(Events, [event_time(Event)|Tail], [Time|RTail]) :-
-	( get_event_time(Events, Event, time(Time, raw)),
-	  !
-	; dbg_nl,
-	  print('ERROR: invalid event: '), print(Event), nl,
-	  fail
-	),
-	apply_preargs(Events, Tail, RTail).
+apply_prearg(Events, event_time(Event), Time) :-
+	(	get_event_time(Events, Event, time(Time, raw)) -> true
+	;	dbg_nl,
+		print('ERROR: invalid event: '), print(Event), nl,
+		fail
+	).
 % Direct pass through arguments.
-apply_preargs(Events, [pass(Data)|Tail], [Data|RTail]) :-
-	apply_preargs(Events, Tail, RTail).
+apply_prearg(_, pass(Data), Data).
 
 % Apply a generic constraint
 apply_constraint(Events, constraint(generic, [Apply, Args])) :-
