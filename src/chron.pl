@@ -568,12 +568,11 @@ events_time_mapping(EventTimes) :-
 	maplist(event_to_time_map, Events, EventTimes).
 
 % Lookup the time of an event in an event-time mapping
-%get_event_time([event(Event, Time)|_], Event, Time).
-get_event_time([event(Event, time(InTime, raw))|_], SimpleEvent, time(OutTime, raw)) :-
+%get_event_time([event(Event, Time), ...], Event, Time).
+get_event_time(Events, SimpleEvent, time(Time, raw)) :-
 	expand_event(SimpleEvent, Event),
-	InTime #= OutTime.
-get_event_time([_|T], Event, Time) :-
-	get_event_time(T, Event, Time).
+	memberchk(event(Event, time(EventTime, raw)), Events),
+	EventTime #= Time.
 
 % Apply all constraints to the events
 apply_constraints(Events) :-
