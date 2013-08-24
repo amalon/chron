@@ -581,21 +581,17 @@ apply_constraints(Events) :-
 		internal_constraint(raw(Type), Data, _, _),
 		Constraints),
 	% And apply them all
-	apply_constraints_inner(Events, Constraints).
+	maplist(apply_constraint_wrapper(Events), Constraints).
 
 % Apply a list of constraints to the times of events
-apply_constraints_inner(_, []).
-apply_constraints_inner(Events, [Constraint|Tail]) :-
+apply_constraint_wrapper(Events, Constraint) :-
 	dbg_print('Applying '), dbg_print(Constraint), dbg_print(' ... '),
-	apply_constraint(Events, Constraint), !,
-	dbg_print('done'), dbg_nl,
-	apply_constraints_inner(Events, Tail).
-apply_constraints_inner(Events, [Constraint|Tail]) :-
-	dbg_nl,
-	print('ERROR: failed to apply constraint: '),
-	print(Constraint), nl,
-	error,
-	apply_constraints_inner(Events, Tail).
+	(	apply_constraint(Events, Constraint) -> dbg_print('done'), dbg_nl
+	;	dbg_print('FAIL'), dbg_nl,
+		print('ERROR: failed to apply constraint: '),
+		print(Constraint), nl,
+		error
+	).
 
 % Pre-process arguments
 apply_preargs(_, [], []).
