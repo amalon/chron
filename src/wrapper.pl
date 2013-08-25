@@ -27,6 +27,7 @@
 % All the chron clauses
 :- include(calendar).
 :- include(chron).
+:- include(precompute).
 :- include(dot).
 :- include(dot_ancestry).
 :- include(dot_chron).
@@ -37,3 +38,6 @@
 :- include(gnuclad).
 :- include(timeline).
 :- include(gnuclad_timeline).
+
+% Precompute facts before doing any processing
+:- precompute.

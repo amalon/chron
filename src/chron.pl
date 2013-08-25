@@ -124,6 +124,8 @@ man(_) :- fail.
 woman(_) :- fail.
 twins(_, _, _) :- fail.
 
+precompute_mapping(is_person(Person), person(Person)).
+
 % Person names
 person_name(_, _) :- fail.
 person_description(Person, Desc) :-
@@ -142,7 +144,7 @@ person_in_group(Person, Group) :-
 
 % Any person who isn't unborn was once born
 born_person(Person) :-
-	person(Person),
+	is_person(Person),
 	\+unborn(Person).
 
 event(conception(Person)) :-
@@ -156,12 +158,12 @@ person(Woman) :-
 
 % A person's lifetime is a period
 period(lifetime(Person)) :-
-	person(Person).
+	is_person(Person).
 
 event_simplifier(begin(lifetime(Person)), birth(Person)) :-
-	person(Person).
+	is_person(Person).
 event_simplifier(end(lifetime(Person)), death(Person)) :-
-	person(Person).
+	is_person(Person).
 
 % Human gestation is approximately 40 weeks
 event_separation(conception(Person), birth(Person), time(Weeks, week), pregnancy) :-
@@ -782,7 +784,7 @@ internal_constraint(raw(generic), [apply_population_bottleneck,
 	Data = [Bottleneck, Survivors],
 	internal_constraint(population_bottleneck, Data, Source, Higher),
 	% applies to all people who aren't survivors
-	person(Person),
+	is_person(Person),
 	\+member(Person, Survivors).
 
 /*
@@ -802,10 +804,10 @@ constraint_uses_inner(X, Period) :-
 	period(Period),
 	constraint_uses_inner(X, end(Period)).
 constraint_uses_inner(X, Person) :-
-	person(Person),
+	is_person(Person),
 	constraint_uses_inner(X, lifetime(Person)).
 constraint_uses_inner(X, Person) :-
-	person(Person),
+	is_person(Person),
 	constraint_uses_inner(X, conception(Person)).
 
 % An internal constraint uses Item.
