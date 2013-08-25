@@ -28,10 +28,14 @@
 :- include(calendar).
 :- include(chron).
 :- include(precompute).
+
+% Auxilliary clauses (not part of core)
+:- include(dwelling).
+
+% Dot output
 :- include(dot).
 :- include(dot_ancestry).
 :- include(dot_chron).
-:- include(dwelling).
 
 % Gnuclad output
 :- include(csv).
