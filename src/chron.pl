@@ -24,29 +24,18 @@
  * Debugging
  */
 
-% Uncomment to enable printing of constraints as the're applied
-%debug_printing.
-% Uncomment to make errors fatal
-errors_fatal.
-
+% true to enable printing of constraints as they're applied
 debug_printing :- fail.
-dbg_print(X) :-
-	debug_printing,
-	print(X),
-	!.
-dbg_print(_).
-dbg_nl :-
-	debug_printing,
-	nl,
-	!.
-dbg_nl.
+% true to make errors fatal
+errors_fatal :- true.
 
-errors_fatal :- fail.
+dbg_print(X) :-
+	(debug_printing -> print(X) ; true).
+dbg_nl :-
+	(debug_printing -> nl ; true).
+
 error :-
-	errors_fatal,
-	!,
-	fail.
-error.
+	(errors_fatal -> (!, fail) ; true).
 
 /*
  * General utilities
