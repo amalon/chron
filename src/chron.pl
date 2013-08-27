@@ -125,6 +125,7 @@ woman(_) :- fail.
 twins(_, _, _) :- fail.
 
 precompute_mapping(is_person(Person), person(Person)).
+precompute_mapping(is_event(Event), event(Event)).
 
 % Person names
 person_name(_, _) :- fail.
@@ -512,7 +513,7 @@ print_db_time_domain_noz(X) :-
 % recursively expand using event_simplifier, finishing when we hit an event
 % matches both derived and underived versions
 expand_event(Event, Expanded) :-
-	(	event(Event) -> Expanded = Event
+	(	is_event(Event) -> Expanded = Event
 	;	event_simplifier(Expand, Event),
 		expand_event(Expand, Expanded)
 	).
@@ -530,7 +531,7 @@ event_expansion(Expanded, Simple) :-
 	->	expand_event(Simple, Expanded)
 	;	\+ var(Expanded)
 	->	simplify_event(Expanded, Simple)
-	;	event(Expanded),
+	;	is_event(Expanded),
 		simplify_event(Expanded, Simple)
 	).
 
@@ -554,7 +555,7 @@ event_to_time_map(Event, event(Event, time(_, raw))).
 events_time_mapping(Events) :-
 	% be careful that events only have a single time
 	% produce a set list of event times
-	setof(event(Event, time(_, raw)), event(Event), Events).
+	setof(event(Event, time(_, raw)), is_event(Event), Events).
 
 % Lookup the time of an event in an event-time mapping
 %get_event_time([event(Event, Time), ...], Event, Time).

@@ -28,7 +28,7 @@ write_dot(Filename) :-
 	close(S).
 
 event_dot(E) :-
-	event(E),
+	is_event(E),
 	% don't show conceptions
 	\+E=conception(_).
 
