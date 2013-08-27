@@ -161,6 +161,9 @@ wrap_ns_predicate(Pred/Arity) :-
 :- use_module(library(clpfd)).
 :- use_module(precompute).
 
+% Ensure full propagation
+:- set_prolog_flag(clpfd_propagation, full).
+
 /*
  * Precomputing
  */
