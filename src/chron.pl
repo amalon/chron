@@ -83,8 +83,61 @@ simplify_time(time(Derived, X), Raw) :-
 
 % describe a source
 source_description(Source, Desc) :-
-	describe_source(Source, Desc), !.
-source_description(Source, Source).
+	% Split out flags
+	preprocess_source(Source, PPSource, Flags),
+	% Describe the source (excluding flags)
+	once(	describe_source(PPSource, PartDesc)
+	;	PartDesc = Source
+	),
+	% Append any flags in brackets (if applicable)
+	(	Flags = []
+	->	Desc = PartDesc
+	;	Desc = concat([PartDesc, ' (', concat(FlagsDesc), ')']),
+		describe_flags(Flags, FlagsDesc)
+	).
+
+% Preprocess a source
+% preprocess_source(Source, PreProcessedSource, Flags).
+% If Source is a list, separate out flags
+preprocess_source([], [], []).
+% Non-list sources map unaltered
+preprocess_source(X, X, []) :-
+	\+ X = [_|_].
+preprocess_source([H|T], Out, Flags) :-
+	once((	preprocess_source_aux2(H, [H|T], Out, Flags)
+	;	Out = [H|Rest],
+		preprocess_source(T, Rest, Flags)
+	)).
+
+preprocess_source_aux2(flags(Flags), [_|T0], T, Flags) :-
+	preprocess_source(T0, T, _).
+
+% Describe normal (non-flag) sources
+describe_source([], '').
+describe_source([H|T], Description) :-
+	source_description(H, HDesc),
+	(	T = []
+	->	Description = HDesc
+	;	Description = concat([HDesc, ', ', Rest]),
+		describe_source(T, Rest)
+	).
+
+% Describe flags without leading comma
+% Output is a list which should be wrapped in concat/1
+describe_flags([H|T], Desc) :-
+	(	T = []
+	->	Desc = [H]
+	;	Desc = [H|Rest],
+		describe_flags_comma(T, Rest)
+	).
+% Describe flags with a leading comma
+% Output is a list which should be wrapped in concat/1
+describe_flags_comma([H|T], Desc) :-
+	(	T = []
+	->	Desc = [', ', H]
+	;	Desc = [', ', H|Rest],
+		describe_flags(T, Rest)
+	).
 
 /*
  * Events
