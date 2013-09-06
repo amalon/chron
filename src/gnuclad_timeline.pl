@@ -18,6 +18,14 @@
  *
  */
 
+:- module('gnuclad_timeline', [
+		write_gnuclad_timeline/2
+	]).
+
+:- use_module(chron(chron)).
+:- use_module(chron(gnuclad)).
+:- use_module(chron(timeline)).
+
 % Top level gnuclad file generation
 write_gnuclad_timeline(Epoch, Filename) :-
 	process_db(Epoch, Events),
@@ -27,34 +35,34 @@ write_gnuclad_timeline(Epoch, Filename) :-
 
 % Person colour
 gnuclad_person_colour(Person, gnuclad_colour(blue)) :-
-	man(Person), !.
+	is_man(Person), !.
 gnuclad_person_colour(Person, gnuclad_colour(pink)) :-
-	woman(Person), !.
+	is_woman(Person), !.
 gnuclad_person_colour(_Person, gnuclad_colour(black)).
 
 % Person's primary parent
 gnuclad_person_parent1(Person, Parent1) :-
 	once((	% Father
-		parent_child(Parent1, Person, _),
-		man(Parent1)
+		is_parent_child(Parent1, Person, _),
+		is_man(Parent1)
 	;	% Other parent
-		parent_child(Parent1, Person, _),
-		\+man(Parent1)
+		is_parent_child(Parent1, Person, _),
+		\+is_man(Parent1)
 	;	% Male ascendent
-		raw_parent_descendent(Parent1, Person, _),
-		man(Parent1)
+		is_raw_parent_descendent(Parent1, Person, _),
+		is_man(Parent1)
 	;	% Other ascendent
-		raw_parent_descendent(Parent1, Person, _),
-		\+woman(Parent1)
+		is_raw_parent_descendent(Parent1, Person, _),
+		\+is_woman(Parent1)
 	;	% Female ascendent
-		raw_parent_descendent(Parent1, Person, _)
+		is_raw_parent_descendent(Parent1, Person, _)
 	;	% Otherwise
 		Parent1 = ''
 	)).
 
 % Person's secondary parent
 gnuclad_person_parent2(Person, Parent1, Parent2) :-
-	parent_child(Parent2, Person, _),
+	is_parent_child(Parent2, Person, _),
 	\+ Parent1 = Parent2.
 
 % Write people nodes

@@ -1,7 +1,7 @@
 /*
- * src/wrapper.pl
+ * src/database.pl
  *
- * Copyright (C) 2012-2013 James Hogan <james@albanarts.com>
+ * Copyright (C) 2013 James Hogan <james@albanarts.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -14,13 +14,24 @@
  * (in the file called COPYING).
  *
  *
- * Test program.
+ * Import necessary modules for use of chron for defining facts in the current
+ * namespace.
  *
  */
 
+% The core Chron modules
 :-	use_module(chron(chron)).
-:-	use_module(chron(file)).
+:-	use_module(chron(calendar)).
+:-	use_module(chron(dwelling)).
+
+% Constraints are sometimes required in facts
 :-	use_module(library(clpfd)).
 
-% include your data file here
-%:-	load_chron_db('../../bible/bible').
+% The definition of Chron facts are usually discontinuous
+:-	style_check(-discontiguous).
+
+% Register this module as containin database facts
+chron_database_temp.
+:-	strip_module(chron_database_temp, Module, _),
+	chron:database(Module),
+	assert(file:last_loaded_db_module(Module)).

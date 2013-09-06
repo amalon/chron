@@ -18,8 +18,17 @@
  *
  */
 
-:- include(wrapper).
-:- include(test).
+:- include(chron(wrapper)).
+
+% Test harness
+:- use_module(test).
+
+% Dot output
+:- use_module(chron(dot_ancestry)).
+:- use_module(chron(dot_chron)).
+:- use_module(chron(gnuclad_timeline)).
+
+:- style_check(-discontiguous).
 
 % ======= Tests =======
 
@@ -116,7 +125,7 @@ is_deterministic(X) :-
 % ======= Autorun and halt =======
 
 % Run all tests automatically
-:- run_tests.
+:-	run_tests(test).
 
 % Halt on completion
-:- halt.
+:-	halt.

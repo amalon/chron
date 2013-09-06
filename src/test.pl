@@ -18,7 +18,14 @@
  *
  */
 
+:- module('test', [
+		run_tests/1
+	]).
+:- meta_predicate run_test(2).
+
 :- use_module(library(ansi_term)).
+
+:- style_check(-discontiguous).
 
 % printing pass and fail messages
 
@@ -122,11 +129,11 @@ run_test(Cmd, Flags, ResultList) :-
 		), ResultList).
 
 % run all tests defined with test/2
-run_tests :-
+run_tests(Pred) :-
 	% first run all the tests
 	nl, ansi_format([bold,underline], 'Running tests:', []), nl, nl,
 	findall(result(Cmd, Flags, ResultList),
-		(	test(Cmd, Flags),
+		(	call(Pred, Cmd, Flags),
 			run_test(Cmd, Flags, ResultList)
 		),
 		Tests),

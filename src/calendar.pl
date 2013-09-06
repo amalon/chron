@@ -18,8 +18,15 @@
  *
  */
 
-calendar_interval(_, _, _) :- fail.
-event_date(_, _, _) :- fail.
+:- module('calendar', []).
+
+:- include(chron(database)).
+
+:- import_ns_predicates([
+		calendar_interval/3,
+		calendar_ordered/2,
+		event_date/3
+	]).
 
 derived_interval(calendar_interval(D1, D2), Interval) :-
 	calendar_interval(D1, D2, Interval).

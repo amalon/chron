@@ -18,12 +18,20 @@
  *
  */
 
+:- module('gnuclad', [
+		write_gnuclad_connector/7,
+		write_gnuclad_comment/2,
+		write_gnuclad_node/9
+	]).
+
+:- use_module(chron(csv)).
+
 % CSV cell write proxy for gnuclad dates
-write_csv_cell_proxy(S, gnuclad_date(Years)) :-
+:- define_csv_cell_proxy(S, gnuclad_date(Years),
 	(	number(Years)
 	->	write_csv_cell_gnuclad_date(S, years(Years))
 	;	write_csv_cell_gnuclad_date(S, Years)
-	).
+	)).
 write_csv_cell_gnuclad_date(S, years(Years)) :-
 	Year is floor(Years),
 	Months is (Years - Year) * 10,
@@ -33,9 +41,10 @@ write_csv_cell_gnuclad_date(S, years(Years)) :-
 	write_csv_cell(S, concat([Year, '.', Month, '.', Day])).
 
 % gnuclad Colours
-write_csv_cell_proxy(S, gnuclad_colour(Colour)) :-
-	gnuclad_colour(Colour, Hex),
-	write_csv_cell(S, Hex).
+:- define_csv_cell_proxy(S, gnuclad_colour(Colour),
+	(	gnuclad_colour(Colour, Hex),
+		write_csv_cell(S, Hex)
+	)).
 gnuclad_colour(black, '#000000').
 gnuclad_colour(blue,  '#0000ff').
 gnuclad_colour(pink,  '#ff7f7f').

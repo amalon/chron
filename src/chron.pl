@@ -20,6 +20,143 @@
  *
  */
 
+:- module('chron', [
+		/* Standard Prolog interface */
+		born_person/1,
+		expand_event/2,
+		get_event_time/3,
+		internal_constraint/4,
+		import_ns_predicates/1,
+		is_event/1,
+		is_person/1,
+		is_married/3,
+		is_man/1,
+		is_parent_child/3,
+		is_parent_descendent/3,
+		is_raw_parent_descendent/3,
+		person_description/2,
+		person_in_group/2,
+		print_db/1,
+		process_db/2,
+		simplify_event/2,
+		source_description/2,
+		is_woman/1,
+
+		/* C++ interface */
+		domain_to_ranges/3,
+		get_time_domain/2,
+		lookup_db_event/4,
+		lookup_db_period/4,
+		lookup_event/2,
+		range_to_minmax/3,
+		range_to_minmax/3,
+		time_to_domain/2
+	]).
+
+% Call from database file to define a database module namepsace
+database(Module) :-
+	assertz(dbns(Module)).
+
+% dbns(X) for all database module namespaces
+:- dynamic dbns/1.
+dbns(_) :- fail.
+
+% define cases of a predicate to import that predicate from db namespaces
+:- meta_predicate import_ns_predicates(0).
+import_ns_predicates(Preds) :-
+	strip_module(Preds, Module, Plain),
+	forall(member(Pred, Plain),
+		import_ns_predicate(Module, Pred)).
+import_ns_predicate(Module, Pred/Arity) :-
+	functor(Functor, Pred, Arity),
+	(dynamic Module:Pred/Arity),
+	Module:asserta(Functor :-
+			(	chron:dbns(Ns),
+				Ns \= Module,
+				current_predicate(Ns:Pred/Arity),
+				Ns:Functor
+			)).
+
+% wrap imported predicates so they can be exposed for normal use
+% creates new predicates prefixed is_
+wrap_ns_predicates(Preds) :-
+	forall(member(Pred, Preds),
+		wrap_ns_predicate(Pred)).
+wrap_ns_predicate(Pred/Arity) :-
+	atom_concat(is_, Pred, IsPred),
+	functor(Functor, Pred, Arity),
+	Functor =.. [_|FunctorList],
+	IsFunctor =.. [IsPred|FunctorList],
+	asserta(IsFunctor :- Functor).
+
+
+:- import_ns_predicates([
+		age_ordering/2,
+		derived_interval/2,
+		derived_unit/3,
+		describe_source/2,
+		event/1,
+		event_during/3,
+		event_interval/4,
+		events_coincide/2,
+		events_ordered/2,
+		man/1,
+		married/3,
+		mature/3,
+		murdered/3,
+		newunits_between/5,
+		newunits_phase/5,
+		newyears_phase/4,
+		parent_child/3,
+		parent_daughter/3,
+		parent_descendent/3,
+		parent_descendents/3,
+		parent_son/3,
+		parent_sons/3,
+		parents_child/3,
+		parents_daughter/3,
+		parents_son/3,
+		parents_sons/3,
+		people_group/2,
+		period/1,
+		period_during/3,
+		period_len/3,
+		period_subdivides/3,
+		periods_len/3,
+		person/1,
+		person_lifetime/3,
+		person_name/2,
+		population_bottleneck/3,
+		raw_parent_descendent/3,
+		twins/3,
+		unborn/1,
+		woman/1
+	]).
+
+% create is_ versions
+:- wrap_ns_predicates([
+		man/1,
+		married/3,
+		parent_child/3,
+		parent_descendent/3,
+		raw_parent_descendent/3,
+		woman/1
+	]).
+
+% We have lots of discontiguous clauses so silence all the warnings
+:- style_check(-discontiguous).
+
+% constraint library
+:- use_module(library(clpfd)).
+:- use_module(precompute).
+
+/*
+ * Precomputing
+ */
+
+% Precompute facts before doing any processing
+precompute :- precompute:precompute(chron).
+
 /*
  * Debugging
  */
@@ -140,16 +277,8 @@ describe_flags_comma([H|T], Desc) :-
 	).
 
 /*
- * Events
- */
-
-event(_) :- fail.
-
-/*
  * Periods
  */
-
-period(_) :- fail.
 
 % The beginning and end of a period are events
 event(begin(Period)) :-
@@ -162,7 +291,6 @@ events_ordered([begin(Period), end(Period)], period_order) :-
 	period(Period).
 
 % period_during(Inner, Outer, Source).
-period_during(_, _, _) :- fail.
 event_during(begin(Inner), Outer, Source) :-
 	period_during(Inner, Outer, Source).
 event_during(end(Inner), Outer, Source) :-
@@ -172,23 +300,20 @@ event_during(end(Inner), Outer, Source) :-
  * People
  */
 
-unborn(_) :- fail.
-man(_) :- fail.
-woman(_) :- fail.
-twins(_, _, _) :- fail.
-
+:- dynamic is_person/1.
+is_person(_) :- fail.
+:- dynamic is_event/1.
+is_event(_) :- fail.
 precompute_mapping(is_person(Person), person(Person)).
 precompute_mapping(is_event(Event), event(Event)).
 
 % Person names
-person_name(_, _) :- fail.
 person_description(Person, Desc) :-
 	person_name(Person, Desc), !.
 person_description(Person, Person).
 
 % Convenience people groups
 % people_gruop(Label, People).
-people_group(_, _) :- fail.
 people_in_group(group(Group), People) :-
 	people_group(Group, People).
 people_in_group([P|Ps], [P|Ps]).
@@ -225,7 +350,6 @@ event_separation(conception(Person), birth(Person), time(Weeks, week), pregnancy
 	Weeks in 37..42.
 
 % Relationships
-parent_child(_, _, _) :- fail.
 
 % mother needs to be present at birth
 event_during(birth(Child), lifetime(Mother), Source) :-
@@ -235,7 +359,6 @@ event_during(birth(Child), lifetime(Mother), Source) :-
 event_during(conception(Child), lifetime(Parent), Source) :-
 	parent_child(Parent, Child, Source).
 % parent's must be sexually mature to have children
-mature(_, _, _) :- fail.
 event(maturity(Person)) :-
 	mature(Person, _, _).
 event_interval(birth(Parent), maturity(Parent), Interval, Source) :-
@@ -245,24 +368,20 @@ events_ordered([maturity(Parent), conception(Child)], Source) :-
 	parent_child(Parent, Child, Source).
 
 % parent_son(Parent, Son, Source).
-parent_son(_, _, _) :- fail.
 man(Son) :-
 	parent_son(_, Son, _).
 parent_child(Parent, Son, Source) :-
 	parent_son(Parent, Son, Source).
 % parent_daughter(Parent, Daughter, Source).
-parent_daughter(_, _, _) :- fail.
 woman(Daughter) :-
 	parent_daughter(_, Daughter, _).
 parent_child(Parent, Daughter, Source) :-
 	parent_daughter(Parent, Daughter, Source).
 % parent_sons(Parent, Sons, Source).
-parent_sons(_, _, _) :- fail.
 parent_son(Parent, Son, Source) :-
 	parent_sons(Parent, Sons, Source),
 	member(Son, Sons).
 % parent_descendent(Parent, Descendent, Source).
-parent_descendent(_, _, _) :- fail.
 person(Descendent) :-
 	parent_descendent(_, Descendent, _),
 	% don't duplicate personage
@@ -274,36 +393,30 @@ raw_parent_descendent(Parent, Descendent, Source) :-
 events_ordered([birth(Parent), conception(Descendent)], Source) :-
 	raw_parent_descendent(Parent, Descendent, Source).
 % parent_descendents(Parent, Descendents, Source).
-parent_descendents(_, _, _) :- fail.
 parent_descendent(Parent, Descendent, Source) :-
 	parent_descendents(Parent, Descendents, Source),
 	member(Descendent, Descendents).
 % parents_child([Father, Mother], Child, Source).
-parents_child(_, _, _) :- fail.
 parent_child(Parent, Child, Source) :-
 	parents_child([Parent, _], Child, Source).
 parent_child(Parent, Child, Source) :-
 	parents_child([_, Parent], Child, Source).
 % parents_son([Father, Mother], Child, Source).
-parents_son(_, _, _) :- fail.
 parents_child([A, B], Child, Source) :-
 	parents_son([A, B], Child, Source).
 man(Child) :-
 	parents_son([_, _], Child, _).
 % parents_sons([Father, Mother], Sons, Source).
-parents_sons(_, _, _) :- fail.
 parents_son(Parents, Son, Source) :-
 	parents_sons(Parents, Sons, Source),
 	member(Son, Sons).
 % parents_daughter([Father, Mother], Child, Source).
-parents_daughter(_, _, _) :- fail.
 parents_child([A, B], Child, Source) :-
 	parents_daughter([A, B], Child, Source).
 woman(Child) :-
 	parents_daughter([_, _], Child, _).
 
 % Marriage
-married(_, _, _) :- fail.
 
 % marriage is a period
 period(marriage(Man, Woman)) :-
@@ -316,13 +429,6 @@ period_during(marriage(Man, Woman), lifetime(Man), Source) :-
 	married(Man, Woman, Source).
 period_during(marriage(Man, Woman), lifetime(Woman), Source) :-
 	married(Man, Woman, Source).
-
-% Generalised interval methods
-% event_interval(Event1, Event2, Param, Source)
-event_interval(_, _, _, _) :- fail.
-% Parameter can be derived
-% derived_interval(Param, Root)
-derived_interval(_, _) :- fail.
 
 % Simplify a derived interval parameter
 simplify_interval(Derived, Root) :-
@@ -368,19 +474,16 @@ newunits_between(Event1, Event2, NewUnit, time(Num, Unit), Source) :-
 % root interval:   new_units(Num, year, NewYear)
 derived_interval(new_years(Num, NewYear), new_units(Num, year, NewYear)).
 
-newyears_phase(_, _, _, _) :- fail.
 newunits_phase(Event, NewYear, year, Phase, Source) :-
 	newyears_phase(Event, NewYear, Phase, Source).
 
 % Generic constraints using intervals
 % A person's lifetime as an interval
-person_lifetime(_, _, _) :- fail.
 event_interval(birth(Person), death(Person), Interval, Source) :-
 	person_lifetime(Person, Interval, Source).
 
 
 % age_ordering(Children, Source).
-age_ordering(_, _) :- fail.
 % births always ordered
 events_ordered([birth(Older), birth(Younger)], Source) :-
 	age_ordering(Children, Source),
@@ -397,7 +500,6 @@ events_ordered([birth(Older), conception(Younger)], Source) :-
 	\+ twins(Older, Younger, _).
 
 % murdered(Murderer, Victim, Source).
-murdered(_, _, _) :- fail.
 event_during(death(Victim), lifetime(Murderer), Source) :-
 	murdered(Murderer, Victim, Source).
 
@@ -670,7 +772,6 @@ constraint(raw(generic), [Apply, Args], Source) :-
 	generic_constraint(Apply, Args, Source).
 
 /* constraint(event_separation, [Event1, Event2, time(N, U)], Source). */
-event_separation(_, _, _, _) :- fail.
 constraint(event_separation, [Event1, Event2, Time], Source) :-
 	event_separation(Event1, Event2, Time, Source).
 apply_event_separation(Time1, Time2, Time) :-
@@ -686,7 +787,6 @@ internal_constraint(raw(generic), [apply_event_separation,
 	simplify_time(Derived, time(Raw, raw)).
 
 /* constraint(newunits_phase, [Event, NewYear, Unit, Phase], Source). */
-newunits_phase(_, _, _, _, _) :- fail.
 constraint(newunits_phase, [Event, NewYear, Unit, Phase], Source) :-
 	newunits_phase(Event, NewYear, Unit, Phase, Source).
 apply_newunits_phase(Time, TimeBase, Unit, Phase) :-
@@ -704,7 +804,6 @@ internal_constraint(raw(generic), [apply_newunits_phase,
 	internal_constraint(newunits_phase, Data, Source, Higher).
 
 /* constraint(newunits_between, [Event1, Event2, NewYear, Count], Source). */
-newunits_between(_, _, _, _, _) :- fail.
 constraint(newunits_between, [Event1, Event2, NewYear, time(Count, Unit)], Source) :-
 	newunits_between(Event1, Event2, NewYear, time(Count, Unit), Source).
 % there isn't a floored divide in clp(fd), so here's a makeshift one using mod
@@ -737,7 +836,6 @@ internal_constraint(raw(generic), [apply_newunits_between,
 
 
 /* constraint(event_during, [Event, Period], Source). */
-event_during(_, _, _) :- fail.
 constraint(event_during, [Event, Period], Source) :-
 	event_during(Event, Period, Source).
 internal_constraint(events_ordered, [begin(Period), Event, end(Period)], Source,
@@ -747,7 +845,6 @@ internal_constraint(events_ordered, [begin(Period), Event, end(Period)], Source,
 	period(Period).
 
 /* constraint(events_coincide, Events, Source). */
-events_coincide(_, _) :- fail.
 constraint(events_coincide, Events, Source) :-
 	events_coincide(Events, Source).
 internal_constraint(event_separation, [Event1, Event2, time(0, raw)], Source,
@@ -757,7 +854,6 @@ internal_constraint(event_separation, [Event1, Event2, time(0, raw)], Source,
 	member(Event2, Tail).
 
 /* constraint(events_ordered, Events, Source). */
-events_ordered(_, _) :- fail.
 constraint(events_ordered, Events, Source) :-
 	events_ordered(Events, Source).
 apply_event_relation(Time1, Op, Time2) :-
@@ -771,7 +867,6 @@ internal_constraint(raw(generic), [apply_event_relation,
 	pair_sublist([Before, After], Events).
 
 /* constraint(period_len, [Period, Time], Source). */
-period_len(_, _, _) :- fail.
 simplified_period_len(Period, Time, Source) :-
 	period_len(Period, DerivedTime, Source),
 	simplify_interval(DerivedTime, Time).
@@ -784,7 +879,6 @@ internal_constraint(event_separation, [begin(Period), end(Period), Time], Source
 	period(Period).
 
 /* constraint(periods_len, [Periods, Time], Source). */
-periods_len(_, _, _) :- fail.
 simplified_periods_len(Periods, Time, Source) :-
 	periods_len(Periods, DerivedTime, Source),
 	simplify_interval(DerivedTime, Time).
@@ -798,7 +892,6 @@ internal_constraint(period_len, [Period, T], Source,
 	period(Period).
 
 /* constraint(period_subdivides, [Period, Periods], Source). */
-period_subdivides(_, _, _) :- fail.
 constraint(period_subdivides, [Period, Periods], Source) :-
 	period_subdivides(Period, Periods, Source).
 internal_constraint(events_coincide, [begin(Period), begin(First)], Source,
@@ -823,7 +916,6 @@ internal_constraint(events_coincide, [end(A), begin(B)], Source,
 	period(B).
 
 % constraint(population_bottleneck, [Bottleneck, Survivors], Source).
-population_bottleneck(_, _, _) :- fail.
 constraint(population_bottleneck, [Bottleneck, Survivors], Source) :-
 	population_bottleneck(Bottleneck, Group, Source),
 	people_in_group(Group, Survivors).

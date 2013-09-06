@@ -18,22 +18,30 @@
  *
  */
 
+:- module('dwelling', []).
+
+:- include(chron(database)).
+
+:- import_ns_predicates([
+		dwelt/4,
+		people_dwelt/4,
+		moved/6,
+		people_moved/6
+	]).
+
 % dwelt(Person, Place, Number, Source).
-dwelt(_, _, _, _) :- fail.
 period(dwell(Person, Place, Number)) :-
 	dwelt(Person, Place, Number, _).
 period_during(dwell(Person, Place, Number), lifetime(Person), Source) :-
 	dwelt(Person, Place, Number, Source).
 
 % people_dwelt(Group, Place, Number, Source).
-people_dwelt(_, _, _, _) :- fail.
 dwelt(Person, Place, Number, Source) :-
 	people_dwelt(Group, Place, Number, Source),
 	person_in_group(Person, Group).
 
 % moved(Person, From, FromNum, To, ToNum, Source).
 % implies they dwelt at To
-moved(_, _, _, _, _, _) :- fail.
 event(move(Person, From, FromNum, To, ToNum)) :-
 	moved(Person, From, FromNum, To, ToNum, _).
 dwelt(Person, To, ToNum, Source) :-
@@ -44,7 +52,6 @@ events_coincide([end(dwell(Person, From, FromNum)),
 	moved(Person, From, FromNum, To, ToNum, Source).
 
 % people_moved(Group, From, FromNum, To, ToNum, Source).
-people_moved(_, _, _, _, _, _) :- fail.
 event(people_move(Group, From, FromNum, To, ToNum)) :-
 	people_moved(Group, From, FromNum, To, ToNum, _).
 moved(Person, From, FromNum, To, ToNum, Source) :-

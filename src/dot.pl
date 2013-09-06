@@ -18,6 +18,15 @@
  *
  */
 
+:- module('dot', [
+		write_dot_attrs_graph/2,
+		write_dot_comment/2,
+		write_dot_edges/3,
+		write_dot_head/3,
+		write_dot_node/3,
+		write_dot_tail/1
+	]).
+
 % general dot output
 write_dot_head(S, Type, Name) :-
 	write(S, Type), write(S, ' '), write(S, Name), write(S, ' {'), nl(S).

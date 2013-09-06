@@ -18,6 +18,23 @@
  *
  */
 
+:- module('csv', [
+		define_csv_cell_proxy/2,
+		define_csv_cell_proxy/3,
+		write_csv_cell/2,
+		write_csv_line/2
+	]).
+
+:- dynamic write_csv_cell_proxy/2.
+
+:- meta_predicate define_csv_cell_proxy(+, +).
+define_csv_cell_proxy(S, Cell) :-
+	assertz(write_csv_cell_proxy(S, Cell)).
+
+:- meta_predicate define_csv_cell_proxy(+, +, 0).
+define_csv_cell_proxy(S, Cell, Cond) :-
+	assertz(write_csv_cell_proxy(S, Cell) :- Cond).
+
 % Single cell
 write_csv_cell_proxy(S, string(Cell)) :-
 	write(S, '"'),

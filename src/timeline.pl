@@ -18,6 +18,10 @@
  *
  */
 
+:- module('timeline', [
+		summary_time/3
+	]).
+
 % Turn a fd domain into a concrete number, which approximates the range very
 % simplistically.
 summary_time(time(Time, raw), SumTime, Flags) :-

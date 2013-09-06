@@ -19,6 +19,8 @@
  *
  */
 
+:- module('precompute', []).
+
 % precompute_mapping(Computed, Original).
 % Defines a mapping from originals facts to computed facts that should be
 % automatically precomputed by precompute/0.
@@ -29,6 +31,11 @@ precompute :-
 	% For each precompute_mapping/2 rule, precompute
 	forall(precompute_mapping(Computed, Original),
 		precompute(Computed, Original)).
+
+precompute(Ns) :-
+	% For each precompute_mapping/2 rule, precompute
+	forall(Ns:precompute_mapping(Computed, Original),
+		precompute(Ns:Computed, Ns:Original)).
 
 % Specific precomputation
 precompute(Computed, Original) :-

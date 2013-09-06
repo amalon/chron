@@ -18,6 +18,13 @@
  *
  */
 
+:- module('dot_ancestry', [
+		write_dot_ancestry/1
+	]).
+
+:- use_module(chron(chron)).
+:- use_module(chron(dot)).
+
 % Top level dot file generation
 write_dot_ancestry(Filename) :-
 	open(Filename, write, S),
@@ -29,16 +36,16 @@ write_dot_ancestry(Filename) :-
 
 % Attributes for a person node
 dot_person_attr(Person, [attr(color, blue)]) :-
-	man(Person), !.
+	is_man(Person), !.
 dot_person_attr(Person, [attr(color, pink)]) :-
-	woman(Person), !.
+	is_woman(Person), !.
 dot_person_attr(_Person, []).
 
 % Write people nodes
 write_dot_people(S, _) :-
 	nl(S),
 	write_dot_comment(S, 'People'),
-	person(Person),
+	is_person(Person),
 	person_description(Person, Desc),
 	dot_person_attr(Person, Attr),
 	write_dot_node(S, Person, [attr(label, string(Desc))|Attr]),
@@ -50,7 +57,7 @@ write_dot_people(_, _).
 write_dot_relationships(S, _) :-
 	nl(S),
 	write_dot_comment(S, 'Relationships'),
-	parent_child(Parent, Child, Src),
+	is_parent_child(Parent, Child, Src),
 	source_description(Src, Desc),
 	write_dot_edges(S, [Parent, d(Child)], [attr(label, string(Desc))]),
 	fail.
@@ -58,7 +65,7 @@ write_dot_relationships(S, _) :-
 write_dot_relationships(S, _) :-
 	nl(S),
 	write_dot_comment(S, 'Ancestry'),
-	parent_descendent(Parent, Child, Src),
+	is_parent_descendent(Parent, Child, Src),
 	source_description(Src, Desc),
 	write_dot_edges(S, [Parent, d(Child)],
 			[attr(label, string(Desc)), attr(style, dashed)]),
@@ -67,7 +74,7 @@ write_dot_relationships(S, _) :-
 write_dot_relationships(S, _) :-
 	nl(S),
 	write_dot_comment(S, 'Marriages'),
-	married(Man, Woman, _),
+	is_married(Man, Woman, _),
 	write_dot_head(S, subgraph, ''),
 	write_dot_attrs_graph(S, [attr(rank, same)]),
 	write_dot_edges(S, [Man, d(Woman)],

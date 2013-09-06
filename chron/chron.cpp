@@ -33,6 +33,9 @@ int main(int argc, char **argv)
 		argv[0],
 		(char *)"-q",	// silence SWI-prolog copyright information
 
+		(char *)"-p",
+		(char *)"chron=../src/",
+
 		(char *)"-s",
 		(char *)"../src/wrapper.pl",
 	};

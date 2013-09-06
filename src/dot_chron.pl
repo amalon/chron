@@ -18,6 +18,13 @@
  *
  */
 
+:- module('dot_chron', [
+		write_dot/1
+	]).
+
+:- use_module(chron(chron)).
+:- use_module(chron(dot)).
+
 write_dot(Filename) :-
 	open(Filename, write, S),
 	write_dot_head(S, digraph, 'chronology'),
