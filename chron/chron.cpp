@@ -26,9 +26,21 @@
 
 #define ARRAY_SIZE(X) (sizeof(X) / sizeof(X[0]))
 
+int usage(const char *arg0, int ret)
+{
+	std::cerr << "Usage: " << arg0 << " <file>" << std::endl;
+	return ret;
+}
+
 int main(int argc, char **argv)
 {
 	int err;
+
+	if (argc < 2) {
+		std::cerr << "No database file provided" << std::endl;
+		return usage(argv[0], 1);
+	}
+
 	char *args[] = {
 		argv[0],
 		(char *)"-q",	// silence SWI-prolog copyright information
@@ -38,6 +50,9 @@ int main(int argc, char **argv)
 
 		(char *)"-s",
 		(char *)"../src/wrapper.pl",
+		(char *)"--",
+		(char *)"--file",
+		argv[1],
 	};
 	PlEngine pl(ARRAY_SIZE(args), args);
 

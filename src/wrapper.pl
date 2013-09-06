@@ -18,9 +18,24 @@
  *
  */
 
+opts_spec(
+	[	[	opt(file),
+			meta('FILE'),
+			type(atom),
+			shortflags([f]),
+			longflags(['file']),
+			help('read chron events from file')]
+	]
+).
+
 :-	use_module(chron(chron)).
 :-	use_module(chron(file)).
 :-	use_module(library(clpfd)).
 
-% include your data file here
-%:-	load_chron_db('../../bible/bible').
+% Read data file from arguments
+:-
+	% Get the file argument
+	opts_spec(OptsSpec),
+	opt_arguments(OptsSpec, Opts, _PositionalArgs),
+	memberchk(file(File), Opts),
+	load_chron_db(File).
