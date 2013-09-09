@@ -22,6 +22,7 @@
 #define _CHRON_CHRON_H_
 
 #include "common.h"
+#include "database.h"
 #include "event.h"
 #include "period.h"
 

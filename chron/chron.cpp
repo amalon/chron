@@ -24,8 +24,6 @@
 
 #include <chron/chron.h>
 
-#define ARRAY_SIZE(X) (sizeof(X) / sizeof(X[0]))
-
 int usage(const char *arg0, int ret)
 {
 	std::cerr << "Usage: " << arg0 << " <file>" << std::endl;
@@ -40,21 +38,9 @@ int main(int argc, char **argv)
 		std::cerr << "No database file provided" << std::endl;
 		return usage(argv[0], 1);
 	}
+	const char *filename = argv[1];
 
-	char *args[] = {
-		argv[0],
-		(char *)"-q",	// silence SWI-prolog copyright information
-
-		(char *)"-p",
-		(char *)"chron=../src/",
-
-		(char *)"-s",
-		(char *)"../src/wrapper.pl",
-		(char *)"--",
-		(char *)"--file",
-		argv[1],
-	};
-	PlEngine pl(ARRAY_SIZE(args), args);
+	chron::Database db(argv[0], filename);
 
 	try {
 		// use first event as epoch
