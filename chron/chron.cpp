@@ -43,14 +43,12 @@ int main(int argc, char **argv)
 	chron::Database db(argv[0], filename);
 
 	try {
-		// use first event as epoch
+		// get default epoch event
 		chron::Event epoch;
-		chron::Chronology::EventIterator epochit;
-		if (!epochit) {
+		if (!chron::Chronology::default_epoch(&epoch)) {
 			std::cout << "no epoch" << std::endl;
 			return 1;
 		}
-		epoch = *epochit;
 		std::cout << "epoch " << epoch.name() << std::endl;
 
 		// load database relative to the epoch

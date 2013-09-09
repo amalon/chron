@@ -46,6 +46,16 @@ namespace chron
 			return Event(event, t_name);
 		}
 
+		static bool default_epoch(Event *event)
+		{
+			// use first event as epoch
+			chron::Chronology::EventIterator epochit;
+			if (!epochit)
+				return false;
+			*event = *epochit;
+			return true;
+		}
+
 		class EventIterator
 		{
 			PlTerm m_name, m_event, m_time;
