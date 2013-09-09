@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 	try {
 		// use first event as epoch
 		chron::Event epoch;
-		chron::Chron::EventIterator epochit;
+		chron::Chronology::EventIterator epochit;
 		if (!epochit) {
 			std::cout << "no epoch" << std::endl;
 			return 1;
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 		std::cout << "epoch " << epoch.name() << std::endl;
 
 		// load database relative to the epoch
-		chron::Chron db;
+		chron::Chronology db;
 		err = db.load(epoch);
 		if (err) {
 			std::cerr << "load failed" << std::endl;
@@ -63,14 +63,14 @@ int main(int argc, char **argv)
 		std::cout << "db loaded" << std::endl;
 
 		// iterate events
-		for (chron::Chron::EventIterator eit(db); eit; ++eit) {
+		for (chron::Chronology::EventIterator eit(db); eit; ++eit) {
 			chron::Event e = *eit;
 			chron::Time diff = eit.time();
 			std::cout << "event " << e.name() << " = " << diff << std::endl;
 		}
 
 		// iterate periods
-		for (chron::Chron::PeriodIterator pit(db); pit; ++pit) {
+		for (chron::Chronology::PeriodIterator pit(db); pit; ++pit) {
 			chron::Period p = *pit;
 			chron::Time begin_diff = pit.begin_time();
 			chron::Time end_diff = pit.end_time();
