@@ -22,6 +22,8 @@
 		summary_time/3
 	]).
 
+:- use_module(library(clpfd)).
+
 % Turn a fd domain into a concrete number, which approximates the range very
 % simplistically.
 summary_time(time(Time, raw), SumTime, Flags) :-
