@@ -144,7 +144,7 @@ clean-y		:= $(prog) $(prog_obj-y) $(prog_dep-y)
 prog_subdir-y	:= $(filter %/,$(prog_obj-y))
 prog_obj-y	:= $(patsubst %/,%/built-in.o,$(prog_obj-y))
 $(prog): $(prog_obj-y) $(libs-y)
-	$(CXX) $(cxxflags-y) $^ -o $@
+	$(CXX) $^ $(cxxflags-y) -o $@
 # subdirs needed for built-in.o
 $(prog_subdir-y:=built-in.o): FORCE
 	$(MAKE) $(makeflags-y) obj=$(patsubst %built-in.o,%,$(patsubst ./%,%,$@)) $(patsubst ./%,%,$@)
