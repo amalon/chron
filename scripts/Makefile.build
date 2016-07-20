@@ -27,6 +27,7 @@ ifneq ($(obj),)
     libs-y	:=
     pkg-y	:=
     cflags-y	:=
+    ldflags-y	:=
     prog-y	:=
     targ-y	:=
     clean-y	:=
@@ -74,15 +75,18 @@ cflags-y	+= $(patsubst %,-I%,$(inc-y))
 
 # use pkg-config to find package information
 ifneq ($(strip $(pkg-y)),)
-cflags-y	+= $(shell pkg-config --cflags --libs $(pkg-y))
+cflags-y	+= $(shell pkg-config --cflags $(pkg-y))
+ldflags-y	+= $(shell pkg-config --libs $(pkg-y))
 endif
 
-# apply CFLAGS and CXXFLAGS
+# apply CFLAGS, CXXFLAGS and LDFLAGS
 cxxflags-y	:= $(strip $(CXXFLAGS) $(cflags-y))
 cflags-y	:= $(strip $(CFLAGS) $(cflags-y))
+ldflags-y	:= $(strip $(LDFLAGS) $(ldflags-y))
 
 makeflags-y	+= CFLAGS='$(cflags-y)'
 makeflags-y	+= CXXFLAGS='$(cxxflags-y)'
+makeflags-y	+= LDFLAGS='$(ldflags-y)'
 
 # split obj-y into obj-y and subdir-y
 subdir-y	:= $(filter %/,$(obj-y))
@@ -144,7 +148,7 @@ clean-y		:= $(prog) $(prog_obj-y) $(prog_dep-y)
 prog_subdir-y	:= $(filter %/,$(prog_obj-y))
 prog_obj-y	:= $(patsubst %/,%/built-in.o,$(prog_obj-y))
 $(prog): $(prog_obj-y) $(libs-y)
-	$(CXX) $^ $(cxxflags-y) -o $@
+	$(CXX) $^ $(ldflags-y) -o $@
 # subdirs needed for built-in.o
 $(prog_subdir-y:=built-in.o): FORCE
 	$(MAKE) $(makeflags-y) obj=$(patsubst %built-in.o,%,$(patsubst ./%,%,$@)) $(patsubst ./%,%,$@)
