@@ -109,6 +109,7 @@ wrap_ns_predicate(Pred/Arity) :-
 		newyears_phase/4,
 		parent_child/3,
 		parent_daughter/3,
+		parent_daughters/3,
 		parent_descendent/3,
 		parent_descendents/3,
 		parent_son/3,
@@ -381,6 +382,10 @@ parent_child(Parent, Daughter, Source) :-
 parent_son(Parent, Son, Source) :-
 	parent_sons(Parent, Sons, Source),
 	member(Son, Sons).
+% parent_daughters(Parent, Daughters, Source).
+parent_daughter(Parent, Daughter, Source) :-
+	parent_daughters(Parent, Daughters, Source),
+	member(Daughter, Daughters).
 % parent_descendent(Parent, Descendent, Source).
 person(Descendent) :-
 	parent_descendent(_, Descendent, _),
