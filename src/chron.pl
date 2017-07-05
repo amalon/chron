@@ -27,13 +27,16 @@
 		get_event_time/3,
 		internal_constraint/4,
 		import_ns_predicates/1,
+		is_birth_name/1,
 		is_event/1,
 		is_person/1,
 		is_married/3,
 		is_man/1,
 		is_parent_child/3,
 		is_parent_descendent/3,
+		is_person_same/3,
 		is_raw_parent_descendent/3,
+		person_birth_name/2,
 		person_description/2,
 		person_in_group/2,
 		print_db/1,
@@ -127,6 +130,8 @@ wrap_ns_predicate(Pred/Arity) :-
 		person/1,
 		person_lifetime/3,
 		person_name/2,
+		person_rename/4,
+		person_same/3,
 		population_bottleneck/3,
 		raw_parent_descendent/3,
 		twins/3,
@@ -140,6 +145,7 @@ wrap_ns_predicate(Pred/Arity) :-
 		married/3,
 		parent_child/3,
 		parent_descendent/3,
+		person_same/3,
 		raw_parent_descendent/3,
 		woman/1
 	]).
@@ -308,10 +314,64 @@ is_event(_) :- fail.
 precompute_mapping(is_person(Person), person(Person)).
 precompute_mapping(is_event(Event), event(Event)).
 
-% Person names
-person_description(Person, Desc) :-
+% Person names, based on:
+%	person_name(Person, Name).
+%	person_same(Person1, Person2, Source).
+%	person_rename(Person, NewPerson, Event, Source).
+raw_person_description(Person, Desc) :-
 	person_name(Person, Desc), !.
-person_description(Person, Person).
+raw_person_description(Person, PersonCap) :-
+	capitalise_atom(Person, PersonCap).
+
+person_same(_, _) :- fail.
+person_alias_backward(Person, Alias) :-
+	(	person_same(Person, Alias, _)
+	;	person_same(Mid, Alias, _),
+		person_alias_backward(Person, Mid)).
+person_alias_forward(Person, Alias) :-
+	(	person_same(Person, Alias, _)
+	;	person_same(Person, Mid, _),
+		person_alias_forward(Mid, Alias)).
+person_aliases(Person, Aliases) :-
+	setof(P, ( person_alias_backward(P, Person)
+		 ; person_alias_forward(Person, P)), Aliases).
+
+aliases_akas([], [L], _, _, L).
+aliases_akas([H|T], [F, HDesc|TDesc], F, M, L) :-
+	raw_person_description(H, HDesc),
+	aliases_akas(T, TDesc, M, M, L).
+
+person_birth_name(Person, BirthName) :-
+	person_rename(Mid, Person, _, _),
+	!,
+	person_birth_name(Mid, BirthName).
+person_birth_name(Person, Person).
+
+is_birth_name(Person) :-
+	\+person_rename(_, Person, _, _).
+
+person_description(Person, Desc) :-
+	person_rename(Person, NewName, _, _),
+	!,
+	person_description(NewName, NewDesc),
+	raw_person_description(Person, RawDesc),
+	Desc = concat([NewDesc, ' (was ', RawDesc, ')']).
+person_description(Person, Desc) :-
+	person_aliases(Person, Aliases),
+	!,
+	raw_person_description(Person, RawDesc),
+	aliases_akas(Aliases, Akas, ' (aka ', ', ', ')'),
+	Desc = concat([RawDesc|Akas]).
+person_description(Person, Desc) :-
+	raw_person_description(Person, Desc).
+
+capitalise_atom(A, B) :-
+	atom_codes(A, AC),
+	capitalise(AC, BC),
+	atom_codes(B, BC).
+capitalise([], []).
+capitalise([H1|T], [H2|T]) :-
+	code_type(H2, to_upper(H1)).
 
 % Convenience people groups
 % people_gruop(Label, People).

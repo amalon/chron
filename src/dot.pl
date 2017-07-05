@@ -97,12 +97,25 @@ write_dot_attr(S, attr(Attr, Val)) :-
 % Write a single value
 write_dot_val(S, d(X)) :-
 	write_dot_val(S, X), !.
-write_dot_val(S, string(X)) :-
-	write(S, '"'), write_dot_val(S, X), write(S, '"'), !.
+write_dot_val(S, string(X1)) :-
+	write(S, '"'),
+	X1=X2,
+	write_dot_val(S, X2),
+	write(S, '"'), !.
 write_dot_val(_, concat([])) :- !.
 write_dot_val(S, concat([A|R])) :-
 	write_dot_val(S, A),
 	write_dot_val(S, concat(R)), !.
+write_dot_val(_, join(_, [])) :- !.
+write_dot_val(S, join(_, [A])) :-
+	write_dot_val(S, A),
+	!.
+write_dot_val(S, join(Sep, [A|R])) :-
+	write_dot_val(S, A),
+	write_dot_val(S, Sep),
+	write_dot_val(S, join(Sep, R)), !.
+write_dot_val(S, '"') :-
+	write_dot_val(S, '\\"'), !.
 write_dot_val(S, X) :-
 	write(S, X).
 
