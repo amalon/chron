@@ -32,6 +32,7 @@
 		is_person/1,
 		is_married/3,
 		is_man/1,
+		is_parent_adopted_child/3,
 		is_parent_child/3,
 		is_parent_descendent/3,
 		is_person_same/3,
@@ -110,6 +111,7 @@ wrap_ns_predicate(Pred/Arity) :-
 		newunits_between/5,
 		newunits_phase/5,
 		newyears_phase/4,
+		parent_adopted_son/3,
 		parent_child/3,
 		parent_daughter/3,
 		parent_daughters/3,
@@ -143,6 +145,7 @@ wrap_ns_predicate(Pred/Arity) :-
 :- wrap_ns_predicates([
 		man/1,
 		married/3,
+		parent_adopted_child/3,
 		parent_child/3,
 		parent_descendent/3,
 		person_same/3,
@@ -427,6 +430,15 @@ event_interval(birth(Parent), maturity(Parent), Interval, Source) :-
 events_ordered([maturity(Parent), conception(Child)], Source) :-
 	mature(Parent, _, _),
 	parent_child(Parent, Child, Source).
+
+% adopted children born during lifetime of adopted parent
+event_during(birth(Child), lifetime(Parent), Source) :-
+	parent_adopted_child(Parent, Child, Source).
+% parent_adopted_son(Parent, Son, Source).
+man(Son) :-
+	parent_adopted_son(_, Son, _).
+parent_adopted_child(Parent, Son, Source) :-
+	parent_adopted_son(Parent, Son, Source).
 
 % parent_son(Parent, Son, Source).
 man(Son) :-

@@ -64,6 +64,13 @@ natural_relationship_desc([ParentName, d(ChildName)], Desc) :-
 	person_birth_name(Parent, ParentName),
 	person_birth_name(Child, ChildName),
 	source_description(Src, Desc).
+% Parent -> adopted child
+adoptive_relationships([ParentName, d(ChildName)],
+			[attr(label, string(Desc)), attr(style, dashed)]) :-
+	is_parent_adopted_child(Parent, Child, Src),
+	person_birth_name(Parent, ParentName),
+	person_birth_name(Child, ChildName),
+	source_description(Src, Desc).
 % Parent -> descendent
 descendent_relationships([ParentName, d(ChildName)],
 			[attr(label, string(Desc)), attr(style, dotted)]) :-
@@ -85,6 +92,12 @@ write_dot_relationships(S, _) :-
 	member(Names2, Edges),
 	setof(Label, natural_relationship_desc(Names2, Label), Labels),
 	write_dot_edges(S, Names2, [attr(label, string(join('\n', Labels)))]),
+	fail.
+write_dot_relationships(S, _) :-
+	nl(S),
+	write_dot_comment(S, 'Adopted Relationships'),
+	adoptive_relationships(Names, Attrs),
+	write_dot_edges(S, Names, Attrs),
 	fail.
 write_dot_relationships(S, _) :-
 	nl(S),
