@@ -269,6 +269,10 @@ describe_source([H|T], Description) :-
 		describe_source(T, Rest)
 	).
 
+% Describe common generic source types
+describe_source(url(Url), Url).
+describe_source(comment(Comment), concat(['"', Comment, '"'])).
+
 % Describe flags without leading comma
 % Output is a list which should be wrapped in concat/1
 describe_flags([H|T], Desc) :-
