@@ -45,6 +45,7 @@
 		simplify_event/2,
 		source_description/2,
 		is_woman/1,
+		pair_sublist/2,
 
 		/* C++ interface */
 		domain_to_ranges/3,
