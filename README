@@ -1,0 +1,32 @@
+Chron
+
+By James Hogan <james@albanarts.com>
+
+Chron is a tool for resolving chronological constraints in genealogies and
+chronologies of historical documents such as the Bible.
+
+There are several components:
+
+ - Chron Prolog rules in src/. These are written in Prolog and define the rules
+   which datasets can use to describe relationships, chronological events and
+   contraints between them. It provides a certain level of abstraction in order
+   to generate inferred chronological constraints, and can resolve the
+   constraints using clgfd.
+
+ - Chron C++ wrapper library in include/chron/ and src/. This uses SWI-Prolog to
+   provides a way to access the Chron data from C++.
+
+ - Chron C++ test program. This imports a dataset and resolves the constraints,
+   printing the resulting date ranges out.
+
+ - An external Chron dataset. This is written in Prolog using the Chron Prolog
+   rules, and describes the actual relationships, chronological events, and
+   constraints between them.
+
+There are some basic tests which may be run on a dataset like this:
+
+  swipl -p chron=src/ -q -s src/check.pl -- --file ../path/to/dataset.pl
+
+Some of these tests compare the output of various generators run on a given
+dataset against corresponding .ref files. This allows you to check for changes
+in output as a result of chron changes.
