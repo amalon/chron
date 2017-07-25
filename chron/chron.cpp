@@ -24,10 +24,35 @@
 
 #include <chron/chron.h>
 
-int usage(const char *arg0, int ret)
+static int usage(const char *arg0, int ret)
 {
-	std::cerr << "Usage: " << arg0 << " <file>" << std::endl;
+	std::cerr << "Usage: " << arg0 << " <file> [<epoch>]" << std::endl;
 	return ret;
+}
+
+static bool choose_epoch(chron::Event *event, const char *epoch)
+{
+	// First try epoch argument
+	if (epoch) {
+		if (chron::Chronology::lookup_event(event, epoch))
+			return true;
+
+		std::cerr << "No event named '" << epoch
+			  << "' to use as epoch" << std::endl;
+		return false;
+	}
+
+	// Failing that, look for an event named "epoch"
+	if (chron::Chronology::lookup_event(event, "epoch"))
+		return true;
+
+	// Finally fall back to just picking the first event
+	if (chron::Chronology::default_epoch(event))
+		return true;
+
+	// No events? can't do much with that
+	std::cout << "No suitable epoch found" << std::endl;
+	return false;
 }
 
 int main(int argc, char **argv)
@@ -45,10 +70,8 @@ int main(int argc, char **argv)
 	try {
 		// get default epoch event
 		chron::Event epoch;
-		if (!chron::Chronology::default_epoch(&epoch)) {
-			std::cout << "no epoch" << std::endl;
+		if (!choose_epoch(&epoch, argc >= 3 ? argv[2] : NULL))
 			return 1;
-		}
 		std::cout << "epoch " << epoch.name() << std::endl;
 
 		// load database relative to the epoch

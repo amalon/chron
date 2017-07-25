@@ -37,13 +37,15 @@ namespace chron
 			return !PlCall("process_db", PlTermv(e, m_db));
 		}
 
-		Event lookup_event(const char *name)
+		static bool lookup_event(Event *event, const char *name)
 		{
-			PlTerm event;
+			PlTerm t_event;
 			PlTerm t_name(name);
-			PlCall("chron", "lookup_event",
-			       PlTermv(m_db, t_name, event));
-			return Event(event, t_name);
+			if (!PlCall("chron", "lookup_event",
+				    PlTermv(t_name, t_event)))
+				return false;
+			*event = Event(t_event, t_name);
+			return true;
 		}
 
 		static bool default_epoch(Event *event)
