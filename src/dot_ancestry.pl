@@ -20,7 +20,8 @@
 
 :- module('dot_ancestry', [
 		write_dot_ancestry/1,
-		write_dot_ancestry/2
+		write_dot_ancestry/2,
+		write_dot_ancestry_files/1
 	]).
 
 :- use_module(chron(chron)).
@@ -39,6 +40,15 @@ write_dot_ancestry(Filename, Filter) :-
 	write_dot_relationships(S, Map, Filter2),
 	write_dot_tail(S),
 	close(S).
+
+write_dot_ancestry_files(Dir) :-
+	filter_person(Person, any),
+	string_concat(Dir, '/', S1),
+	string_concat(S1, Person, S2),
+	string_concat(S2, '.dot', S3),
+	write_dot_ancestry(S3, directly_related(Person)),
+	fail.
+write_dot_ancestry_files(_).
 
 expand_filter(any, any).
 expand_filter(directly_related(Person), one_of(People)) :-
