@@ -36,7 +36,7 @@ write_dot_ancestry(Filename, Filter) :-
 	print(Filename),nl,
 	open(Filename, write, S),
 	write_dot_head(S, digraph, 'ancestry'),
-	write_dot_people(S, Map, Filter2),
+	write_dot_people(S, Map, Filter, Filter2),
 	write_dot_relationships(S, Map, Filter2),
 	write_dot_tail(S),
 	close(S).
@@ -73,23 +73,39 @@ filter_person(Person, directly_related(Other)) :-
 filter_person(Person, one_of(People)) :-
 	member(Person, People).
 
+filter_focus(Person, directly_related(Person)).
+
 % Attributes for a person node
-dot_person_attr(Person, [attr(color, blue)]) :-
-	is_man(Person), !.
-dot_person_attr(Person, [attr(color, pink)]) :-
-	is_woman(Person), !.
-dot_person_attr(_Person, []).
+dot_person_attr_focus(Person, Filter, Fillcolor,
+			[attr(style, string(join(',',[bold,filled]))),
+			 attr(fillcolor, Fillcolor)]) :-
+	filter_focus(Person, Filter), !.
+dot_person_attr_focus(_Person, _Filter, _Fillcolor, []).
+
+dot_person_attr_common(Person, Filter, Fillcolor,
+			[attr('URL', string(concat([Person, '.html']))),
+			 attr(target, '_top') | Attr]) :-
+	dot_person_attr_focus(Person, Filter, Fillcolor, Attr).
+
+dot_person_attr(Person, [attr(color, blue)|Focus], Filter) :-
+	is_man(Person),
+	dot_person_attr_common(Person, Filter, lightblue, Focus), !.
+dot_person_attr(Person, [attr(color, red)|Focus], Filter) :-
+	is_woman(Person),
+	dot_person_attr_common(Person, Filter, lightpink, Focus), !.
+dot_person_attr(Person, Focus, Filter) :-
+	dot_person_attr_common(Person, Filter, lightgrey, Focus).
 
 % Write people nodes
-write_dot_people(S, _, Filter) :-
+write_dot_people(S, _, OrigFilter, Filter) :-
 	nl(S),
 	write_dot_comment(S, 'People'),
 	filter_person(Person, Filter),
 	person_description(Person, Desc),
-	dot_person_attr(Person, Attr),
+	dot_person_attr(Person, Attr, OrigFilter),
 	write_dot_node(S, Person, [attr(label, string(Desc))|Attr]),
 	fail.
-write_dot_people(_, _, _).
+write_dot_people(_, _, _, _).
 
 % Write edges for relationships between people
 % Parent -> child
