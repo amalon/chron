@@ -89,7 +89,12 @@ main :-
 	string_concat(Cmd1, ' -C "', Cmd2),
 	string_concat(Cmd2, Output, Cmd3),
 	string_concat(Cmd3, '"', Cmd),
-	shell(Cmd).
+	shell(Cmd),
+
+	% Clean source files
+	print('Cleaning'), nl,
+	string_concat(Cmd, ' clean_sources', CleanCmd),
+	shell(CleanCmd).
 
 write_makefile(Output) :-
 	string_concat(Output, '/Makefile', MakefilePath),
@@ -103,6 +108,8 @@ write_makefile(Output) :-
 	write(S, '	$(DOT) -Tsvg -o"$@" "$^"\n'),
 	write(S, '%.png: %.dot\n'),
 	write(S, '	$(DOT) -Tpng -o"$@" "$^"\n'),
+	write(S, 'clean_sources:\n'),
+	write(S, '	rm -f $(DOTS) Makefile\n'),
 	close(S).
 
 :-	main,
