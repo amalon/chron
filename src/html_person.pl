@@ -38,7 +38,6 @@ write_html_people_files(_).
 
 write_html_css_files(Dir) :-
 	string_concat(Dir, '/styles.css', CssFile),
-	print(CssFile),nl,
 	open(CssFile, write, S),
 	write(S,
 'a.person.man { background-color: lightblue; }\n\
@@ -48,7 +47,6 @@ a.person.unknown { background-color: lightgrey; }\n\
 	close(S).
 
 write_html_person(Filename, Person) :-
-	print(Filename),nl,
 	open(Filename, write, S),
 	person_description(Person, Desc),
 	write(S, '<html>'), nl(S),

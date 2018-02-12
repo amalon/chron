@@ -33,7 +33,6 @@ write_dot_ancestry(Filename) :-
 
 write_dot_ancestry(Filename, Filter) :-
 	expand_filter(Filter, Filter2),
-	print(Filename),nl,
 	open(Filename, write, S),
 	write_dot_head(S, digraph, 'ancestry'),
 	write_dot_people(S, Map, Filter, Filter2),
