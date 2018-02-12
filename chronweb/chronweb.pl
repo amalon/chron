@@ -52,7 +52,7 @@ opts_spec(
 :-	use_module(chron(file)).
 :-	use_module(library(clpfd)).
 :-	use_module(chron(dot_ancestry)).
-:-	use_module(chron(html_person)).
+:-	use_module(html_person).
 
 main :-
 	% Load dataset
