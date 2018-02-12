@@ -47,7 +47,7 @@ write_html_people(S) :-
 	is_birth_name(Person),
 	write_html_person_link(S, Person),
 	fail.
-write_html_people(S).
+write_html_people(_S).
 
 person_gender_class(Person, 'woman') :-
 	is_woman(Person), !.
