@@ -30,7 +30,7 @@
 % The definition of Chron facts are usually discontinuous
 :-	style_check(-discontiguous).
 
-% Register this module as containin database facts
+% Register this module as containing database facts
 chron_database_temp.
 :-	strip_module(chron_database_temp, Module, _),
 	chron:database(Module),
