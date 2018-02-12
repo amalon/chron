@@ -44,6 +44,14 @@ opts_spec(
 			shortflags([j]),
 			longflags(['jobs']),
 			help('Makefile jobs')
+		],
+		[
+			opt(keep),
+			type(boolean),
+			default(false),
+			shortflags([k]),
+			longflags(['keep']),
+			help('Keep intermediate files (e.g. *.dot, Makefile)')
 		]
 	]
 ).
@@ -65,6 +73,7 @@ main :-
 	% Read options
 	memberchk(output(Output), Opts),
 	memberchk(jobs(Jobs), Opts),
+	memberchk(keep(Keep), Opts),
 
 	% Create directory
 	print('Output directory ('), print(Output), print(')'), nl,
@@ -95,9 +104,12 @@ main :-
 	shell(Cmd),
 
 	% Clean source files
-	print('Cleaning'), nl,
-	string_concat(Cmd, ' clean_sources', CleanCmd),
-	shell(CleanCmd).
+	( Keep = true ->
+		print('Keeping intermediates'), nl
+	; Keep = false ->
+		print('Cleaning intermediates'), nl,
+		string_concat(Cmd, ' clean_sources', CleanCmd),
+		shell(CleanCmd)).
 
 write_makefile(Output) :-
 	string_concat(Output, '/Makefile', MakefilePath),
