@@ -52,6 +52,7 @@ opts_spec(
 :-	use_module(chron(file)).
 :-	use_module(library(clpfd)).
 :-	use_module(chron(dot_ancestry)).
+:-	use_module(html_index).
 :-	use_module(html_person).
 
 main :-
@@ -76,6 +77,8 @@ main :-
 
 	% The HTML files
 	print('HTML files'), nl,
+	print('  index.html'), nl,
+	write_html_index(Output),
 	print('  people'), nl,
 	write_html_people_files(Output),
 
