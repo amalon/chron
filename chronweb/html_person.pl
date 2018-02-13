@@ -19,22 +19,23 @@
  */
 
 :- module('html_person', [
-		write_html_people_files/1
+		write_html_people_files/2
 	]).
 
 :- use_module(chron(chron)).
+:- use_module(library(clpfd)).
 
 % Top level html file generation
-write_html_people_files(Dir) :-
+write_html_people_files(Dir, Events) :-
 	write_html_css_files(Dir),
 	is_person(Person),
 	is_birth_name(Person),
 	string_concat(Dir, '/', S1),
 	string_concat(S1, Person, S2),
 	string_concat(S2, '.html', S3),
-	write_html_person(S3, Person),
+	write_html_person(S3, Person, Events),
 	fail.
-write_html_people_files(_).
+write_html_people_files(_Dir, _Events).
 
 write_html_css_files(Dir) :-
 	string_concat(Dir, '/styles.css', CssFile),
@@ -46,7 +47,7 @@ a.person.unknown { background-color: lightgrey; }\n\
 '),
 	close(S).
 
-write_html_person(Filename, Person) :-
+write_html_person(Filename, Person, Events) :-
 	open(Filename, write, S),
 	person_description(Person, Desc),
 	write(S, '<html>'), nl(S),
@@ -66,6 +67,7 @@ write_html_person(Filename, Person) :-
 	write_html_person_adopted_parents(S, Person),
 	write_html_person_children(S, Person),
 	write_html_person_adopted_children(S, Person),
+	write_html_person_events(S, Person, Events),
 	write(S, '</body>'), nl(S),
 	write(S, '</html>'), nl(S),
 	close(S).
@@ -152,6 +154,58 @@ write_html_person_adopted_children(S, Person) :-
 	write_html_person_link(S, Child, Sources),
 	fail.
 write_html_person_adopted_children(_S, _Person).
+
+% Events
+write_html_person_events(S, Person, Events) :-
+	write(S, '<h3>Events</h3>'), nl(S),
+	write_html_event(S, begin(lifetime(Person)), 'Birth', Events),
+	write_html_event(S, end(lifetime(Person)), 'Death', Events),
+	fail.
+write_html_person_events(_S, _Person, _Events).
+
+write_html_event(S, Event, ShortName, Events) :-
+	member(event(Event, time(T, raw)), Events),
+	fd_dom(T, D),
+	write(S, '<div class="event">'),
+	write(S, ShortName), write(S, ' '), write_html_time(S, D),
+	write(S, '</div>'), nl(S).
+
+write_html_time(S, X..X) :-
+	!,
+	write_html_time_single(S, X).
+write_html_time(S, X..Y) :-
+	write_html_time_single(S, X),
+	write(S, ' .. '),
+	write_html_time_single(S, Y).
+write_html_time(S, X\/Y) :-
+	write_html_time(S, X),
+	write(S, ' \\/ '),
+	write_html_time(S, Y).
+
+write_html_time_single(S, inf) :-
+	write(S, inf),
+	!.
+write_html_time_single(S, sup) :-
+	write(S, sup),
+	!.
+write_html_time_single(S, X) :-
+	split_time_units(X, TU),
+	write_html_time_units(S, TU).
+
+write_html_time_units(S, [tu(N,U)|R]) :-
+	write(S, N),
+	write(S, ' '),
+	write(S, U),
+	!,
+	write_html_time_units_noz(S, R).
+write_html_time_units(S, [N|R]) :-
+	write(S, N),
+	write_html_time_units_noz(S, R).
+
+write_html_time_units_noz(_S, []).
+write_html_time_units_noz(S, [X|R]) :-
+	write(S, ' '),
+	write_html_time_units(S, [X|R]).
 
 person_gender_class(Person, 'woman') :-
 	is_woman(Person), !.

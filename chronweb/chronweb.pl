@@ -75,6 +75,9 @@ main :-
 	memberchk(jobs(Jobs), Opts),
 	memberchk(keep(Keep), Opts),
 
+	% Process events
+	process_db(epoch, Events),
+
 	% Create directory
 	print('Output directory ('), print(Output), print(')'), nl,
 	(\+ exists_directory(Output) -> make_directory(Output) ; true),
@@ -89,7 +92,7 @@ main :-
 	print('  index.html'), nl,
 	write_html_index(Output),
 	print('  people'), nl,
-	write_html_people_files(Output),
+	write_html_people_files(Output, Events),
 
 	% The ancestry dot files
 	print('DOT files'), nl,
