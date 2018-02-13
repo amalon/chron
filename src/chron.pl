@@ -43,6 +43,7 @@
 		print_db/1,
 		process_db/2,
 		simplify_event/2,
+		split_time_units/2,
 		source_description/2,
 		is_woman/1,
 		pair_sublist/2,
@@ -706,6 +707,30 @@ print_db_time_single(sup) :-
 	print(sup),
 	!.
 print_db_time_single(X) :-
+	split_time_units(X, TU),
+	print_db_time_units(TU).
+
+print_db_time_units([tu(N,U)|R]) :-
+	print(N),
+	print(' '),
+	print(U),
+	!,
+	print_db_time_units_noz(R).
+print_db_time_units([N|R]) :-
+	print(N),
+	print_db_time_units_noz(R).
+
+/* Print a time domain only if it's non-zero */
+print_db_time_units_noz([]).
+print_db_time_units_noz([X|R]) :-
+	print(' '),
+	print_db_time_units([X|R]).
+
+% More general, split to array of tu(N, Unit) or raw value.
+split_time_units(X..X, TU) :-
+	split_time_units(X, TU),
+	!.
+split_time_units(X, [tu(N, U)|R]) :-
 	% U is a preferred unit
 	preferred_unit(U),
 	% No unit derived from U that would be a better choice (<= X)
@@ -714,20 +739,15 @@ print_db_time_single(X) :-
 	simplify_time(time(1, U), time(BT, raw)),
 	N #= X / BT,
 	N #\= 0,
-	% Print this part of the unit
-	print(N),
-	print(' '),
-	print(U),
 	% Find remainder
 	Rounded #= BT * N,
 	X #= Rounded + Remainder,
 	% Print it, or not if it's zero
 	Remainder #= P,
 	fd_dom(P, Dom),
-	print_db_time_domain_noz(Dom),
+	split_time_units_noz(Dom, R),
 	!.
-print_db_time_single(X) :-
-	print(X).
+split_time_units(X, [X]).
 
 /* U derives from Than, and 1 U <= X */
 bigger_unit(X, Than, U) :-
@@ -736,14 +756,13 @@ bigger_unit(X, Than, U) :-
 	simplify_time(time(1, U), time(Time, raw)),
 	Time =< abs(X).
 
-/* Print a time domain only if it's non-zero */
-print_db_time_domain_noz(0) :-
+/* Append a time domain only if it's non-zero */
+split_time_units_noz(0, []) :-
 	!.
-print_db_time_domain_noz(0..0) :-
+split_time_units_noz(0..0, []) :-
 	!.
-print_db_time_domain_noz(X) :-
-	print(' '),
-	print_db_time_domain(X).
+split_time_units_noz(X, Split) :-
+	split_time_units(X, Split).
 
 
 /*
