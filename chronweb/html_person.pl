@@ -216,13 +216,13 @@ person_gender_class(_Person, 'unknown').
 write_html_person_link(S, Person, Sources) :-
 	person_gender_class(Person, Gender),
 	person_description(Person, Desc),
-	print(S, '<div>'), nl(S),
-	print(S, '<a class="person '), print(S, Gender), print(S, '" href="'), print(S, Person), print(S, '.html">'),
+	write(S, '<div>'), nl(S),
+	write(S, '<a class="person '), write(S, Gender), write(S, '" href="'), write(S, Person), write(S, '.html">'),
 	write_html_val(S, Desc),
-	print(S, '</a>'), nl(S),
+	write(S, '</a>'), nl(S),
 	maplist(source_description, Sources, SourceDescriptions),
 	write_html_val(S, join(', ', SourceDescriptions)),
-	print(S, '<div>'), nl(S).
+	write(S, '<div>'), nl(S).
 
 
 % Write a single value
